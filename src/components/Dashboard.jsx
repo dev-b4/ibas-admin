@@ -58,6 +58,12 @@ export default function Dashboard() {
       if (result.ativos && result.ativos.length > 0) {
         setSelectedAsset(result.ativos[0]);
       }
+      
+      const hist = await getIbasHistory();
+      if (hist && hist.length > 0) {
+        setHistoryList(hist);
+      }
+      
       setLoading(false);
     };
     loadData();
@@ -109,10 +115,11 @@ export default function Dashboard() {
   }, [data, language]);
 
   const [historyData, setHistoryData] = useState({ max24h: 0, min24h: 0, max30d: 0, min30d: 0, variation: 0 });
+  const [historyList, setHistoryList] = useState([]);
 
   useEffect(() => {
     if (currentIbas > 0) {
-      const history = registerDailyIbasIndex(currentIbas);
+      const history = historyList;
       const today = new Date().toLocaleDateString('pt-BR');
       
       const todayEntry = history.find(h => h.date === today);
@@ -143,7 +150,7 @@ export default function Dashboard() {
 
       setHistoryData({ max24h, min24h, max30d, min30d, variation });
     }
-  }, [currentIbas]);
+  }, [currentIbas, historyList]);
 
   // Função para exportar CSV
   const handleExportCSV = () => {
@@ -195,7 +202,7 @@ export default function Dashboard() {
   const [timeFilter, setTimeFilter] = useState('1S');
   
   const getChartData = () => {
-    if (!history || !Array.isArray(history) || history.length === 0) {
+    if (!historyList || !Array.isArray(historyList) || historyList.length === 0) {
       return [];
     }
 
@@ -210,7 +217,7 @@ export default function Dashboard() {
     try {
       switch (timeFilter) {
         case '1D': 
-          const todayPts = history.length > 0 ? history[history.length - 1].close : 0;
+          const todayPts = historyList.length > 0 ? historyList[historyList.length - 1].close : 0;
           return [
             { time: '08:00', pts: todayPts },
             { time: '10:00', pts: todayPts },
@@ -220,15 +227,15 @@ export default function Dashboard() {
             { time: '18:00', pts: todayPts }
           ];
         case '1S':
-          return formatData(history.slice(-7));
+          return formatData(historyList.slice(-7));
         case '1M': 
-          return formatData(history.slice(-30));
+          return formatData(historyList.slice(-30));
         case '3M': 
-          return formatData(history.slice(-90));
+          return formatData(historyList.slice(-90));
         case '6M': 
-          return formatData(history.slice(-180));
+          return formatData(historyList.slice(-180));
         default: 
-          return formatData(history.slice(-7));
+          return formatData(historyList.slice(-7));
       }
     } catch(e) {
       console.error("Error formatting chart data", e);

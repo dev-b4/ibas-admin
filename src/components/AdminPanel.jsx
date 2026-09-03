@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { fetchIbasData, mockEvidences, calculatePilarScore, getObligations, saveObligations, logAction, getActionLogs, getSystemUsers, saveSystemUsers, defaultPilarObligations } from '../api/mockData';
+import { fetchIbasData, mockEvidences, getEvidences, calculatePilarScore, getObligations, saveObligations, logAction, getActionLogs, getSystemUsers, saveSystemUsers, defaultPilarObligations } from '../api/mockData';
 import AddProjectModal from './AddProjectModal';
 import AddEvidenceModal from './AddEvidenceModal';
 import EvidenceDetailsModal from './EvidenceDetailsModal';
@@ -36,9 +36,9 @@ export default function AdminPanel() {
   const [evidenciasLocal, setEvidenciasLocal] = useState(() => {
     const saved = localStorage.getItem('b4_evidences_local');
     try {
-      return saved && saved !== "undefined" ? JSON.parse(saved) : mockEvidences;
+      return saved && saved !== "undefined" ? JSON.parse(saved) : getEvidences();
     } catch(e) {
-      return mockEvidences;
+      return getEvidences();
     }
   });
 
@@ -110,6 +110,7 @@ export default function AdminPanel() {
         ativos = ativos.filter(p => currentUser.projects.includes(p.id) || p.id.startsWith('custom_'));
       }
       setProjetos(ativos);
+      setEvidenciasLocal(getEvidences());
       if (ativos.length > 0) {
         setProjetoSelecionado(ativos[0]);
       }
