@@ -12,20 +12,20 @@ const projectAssets = {
     nfts: [
       {
         title: 'BF Terra I',
-        image: './assets/nft_bfterra_1.png',
+        image: '/assets/nft_bfterra_1.png',
         link: 'https://b4.capital/pt/consulta-publica/#projeto/0xc88d4860d4ddb7a7621b4a919360b4775d93a5ef/id/1',
         date: '14 de Julho de 2025'
       },
       {
         title: 'BF Terra II',
-        image: './assets/nft_bfterra_2.png',
+        image: '/assets/nft_bfterra_2.png',
         link: 'https://b4.capital/pt/consulta-publica/#projeto/bftII',
         date: '14 de Julho de 2025'
       }
     ],
     token: {
       title: 'BF Terra (BFTIII)',
-      image: './assets/bfterra_moeda.png',
+      image: '/assets/bfterra_moeda.png',
       link: 'https://polygonscan.com/token/0x9f727a1350b11f6c0855ddf718ae8bc058a5342e#transactions',
       qty: '1,368,685.34',
       date: '11 de Julho de 2025'
@@ -35,14 +35,14 @@ const projectAssets = {
     nfts: [
       {
         title: 'Apoena Kaa',
-        image: './assets/apoena-kaa-nft.png',
+        image: '/assets/apoena-kaa-nft.png',
         link: 'https://b4.capital/pt/consulta-publica/#projeto/0x90192d63e476b7ce061c0dbbad10fde95c5e1514/id/1',
         date: '01 de Setembro de 2026'
       }
     ],
     token: {
       title: 'Apoena Kaa Coin',
-      image: './apoena-kaa-coin.png',
+      image: '/apoena-kaa-coin.png',
       link: 'https://polygonscan.com/token/0xd5660178319a151f780d3abcc82c1d12d2dc75ff#transactions',
       qty: '1.655.674,86',
       date: '01 de Setembro de 2026'
@@ -52,14 +52,14 @@ const projectAssets = {
     nfts: [
       {
         title: 'Aracê Iba',
-        image: './assets/arace-iba-nft.png',
+        image: '/assets/arace-iba-nft.png',
         link: 'https://b4.capital/pt/consulta-publica/#projeto/0xc8b8b674a6bab9cb09b4a660b8993035c1d923b9/id/1',
         date: '01 de Setembro de 2026'
       }
     ],
     token: {
       title: 'Ativo Sustentável',
-      image: './arace-iba-coin.png',
+      image: '/arace-iba-coin.png',
       link: 'https://polygonscan.com/token/0xc04c400a561befc37a8d4cfde7527d2f3c2928f7#transactions',
       qty: '3.714.728,34',
       date: '01 de Setembro de 2026'
@@ -69,14 +69,14 @@ const projectAssets = {
     nfts: [
       {
         title: 'Dowedi Mitir',
-        image: './assets/dowedi-mitir-nft.png',
+        image: '/assets/dowedi-mitir-nft.png',
         link: 'https://b4.capital/pt/consulta-publica/#projeto/0xfe7dee81b1a416068a5ce01f3489bd5c9996ae62/id/1',
         date: '01 de Setembro de 2026'
       }
     ],
     token: {
       title: 'Ativo Sustentável',
-      image: './dowedi-coin.png',
+      image: '/dowedi-coin.png',
       link: 'https://polygonscan.com/token/0x063af83a39e0e42111799d7d0ec9d8af7e3e75a2#transactions',
       qty: '30.547',
       date: '01 de Setembro de 2026'
@@ -86,14 +86,14 @@ const projectAssets = {
     nfts: [
       {
         title: 'Owie Bitioni',
-        image: './assets/owie-nft.png',
+        image: '/assets/owie-nft.png',
         link: 'https://b4.capital/pt/consulta-publica/#projeto/0xc84fc3cdc3c6d0713ecc6008e50efcffc9b14b3b/id/1',
         date: '01 de Setembro de 2026'
       }
     ],
     token: {
       title: 'Ativo Sustentável',
-      image: './owie-bitioni-coin.png',
+      image: '/owie-bitioni-coin.png',
       link: 'https://polygonscan.com/token/0x0938d6d82f7de771b1f0501891a88f9c9311d69e',
       qty: '363.823',
       date: '01 de Setembro de 2026'
@@ -103,14 +103,14 @@ const projectAssets = {
     nfts: [
       {
         title: 'Tonca',
-        image: './assets/tonca-nft.png',
+        image: '/assets/tonca-nft.png',
         link: 'https://b4.capital/pt/consulta-publica/#projeto/0xd69f495fd95d429954a63196d499dcfe4f3c87f5/id/5',
         date: '01 de Setembro de 2026'
       }
     ],
     token: {
       title: 'Ativo Sustentável',
-      image: './tonca-coin.png',
+      image: '/tonca-coin.png',
       link: 'https://polygonscan.com/token/0xaaf2b32576acfa581ab94b0144b33cd8cfd4f8b6#transactions',
       qty: '8.847.687',
       date: '01 de Setembro de 2026'
@@ -120,32 +120,32 @@ const projectAssets = {
     nfts: [
       {
         title: 'Certificado de PSA R$100',
-        image: './assets/yaku-100-nft.png',
+        image: '/assets/yaku-100-nft.png',
         link: 'https://b4.capital/pt/consulta-publica/#projeto/0x7466eb42b5b165d8b133a7040870b2da6c060546/id/1',
         date: '01 de Setembro de 2026'
       },
       {
         title: 'Certificado de PSA R$500',
-        image: './assets/yaku-500-nft.png',
+        image: '/assets/yaku-500-nft.png',
         link: 'https://b4.capital/pt/consulta-publica/#projeto/0x7466eb42b5b165d8b133a7040870b2da6c060546/id/2',
         date: '01 de Setembro de 2026'
       },
       {
         title: 'Certificado de PSA R$1.000',
-        image: './assets/yaku-1k-nft.png',
+        image: '/assets/yaku-1k-nft.png',
         link: 'https://b4.capital/pt/consulta-publica/#projeto/0x7466eb42b5b165d8b133a7040870b2da6c060546/id/3',
         date: '01 de Setembro de 2026'
       },
       {
         title: 'Certificado de PSA R$10.000',
-        image: './assets/yaku-10k-nft.png',
+        image: '/assets/yaku-10k-nft.png',
         link: 'https://b4.capital/pt/consulta-publica/#projeto/0x7466eb42b5b165d8b133a7040870b2da6c060546/id/4',
         date: '01 de Setembro de 2026'
       }
     ],
     token: {
       title: 'Ativo Sustentável',
-      image: './yaku-coin.png',
+      image: '/yaku-coin.png',
       link: 'https://polygonscan.com/token/0x66a4e18C37DA958EC1449E056477DfAd020CDd28#transactions',
       qty: '610.510',
       date: '01 de Setembro de 2026'
