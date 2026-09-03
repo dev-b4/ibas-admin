@@ -193,42 +193,46 @@ export default function Dashboard() {
 
   // Lógica do Gráfico Real
   const [timeFilter, setTimeFilter] = useState('1S');
+  
   const getChartData = () => {
-    const history = getIbasHistory();
-    if (!history || history.length === 0) {
-      return [
-        { time: '08:00', pts: currentIbas },
-        { time: '12:00', pts: currentIbas },
-        { time: '16:00', pts: currentIbas },
-        { time: 'Agora', pts: currentIbas }
-      ];
+    if (!history || !Array.isArray(history) || history.length === 0) {
+      return [];
     }
 
-    // Function to format history for chart
-    const formatData = (dataSlice) => dataSlice.map(h => ({
-      time: h.date.substring(0, 5), // DD/MM
-      pts: h.close
-    }));
+    const formatData = (dataSlice) => {
+      if (!Array.isArray(dataSlice)) return [];
+      return dataSlice.map(h => ({
+        time: h && h.date ? h.date.substring(0, 5) : '00/00',
+        pts: h ? h.close : 0
+      }));
+    };
 
-    switch (timeFilter) {
-      case '1D': 
-        // Cria uma linha reta intraday com o valor atual para desenhar o gráfico {t('dashboard.of')} 1D
-        const todayPts = history.length > 0 ? history[history.length - 1].close : 0;
-        return [
-          { time: '08:00', pts: todayPts },
-          { time: '12:00', pts: todayPts },
-          { time: '16:00', pts: todayPts },
-          { time: 'Agora', pts: todayPts }
-        ];
-      case '1M': 
-        return formatData(history.slice(-30));
-      case '3M': 
-        return formatData(history.slice(-90));
-      case '6M': 
-        return formatData(history.slice(-180));
-      case '1S':
-      default: 
-        return formatData(history.slice(-7));
+    try {
+      switch (timeFilter) {
+        case '1D': 
+          const todayPts = history.length > 0 ? history[history.length - 1].close : 0;
+          return [
+            { time: '08:00', pts: todayPts },
+            { time: '10:00', pts: todayPts },
+            { time: '12:00', pts: todayPts },
+            { time: '14:00', pts: todayPts },
+            { time: '16:00', pts: todayPts },
+            { time: '18:00', pts: todayPts }
+          ];
+        case '1S':
+          return formatData(history.slice(-7));
+        case '1M': 
+          return formatData(history.slice(-30));
+        case '3M': 
+          return formatData(history.slice(-90));
+        case '6M': 
+          return formatData(history.slice(-180));
+        default: 
+          return formatData(history.slice(-7));
+      }
+    } catch(e) {
+      console.error("Error formatting chart data", e);
+      return [];
     }
   };
   const chartData = getChartData();
