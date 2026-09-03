@@ -166,6 +166,17 @@ function Preloader({ onComplete }) {
 function App() {
   const [loadingApp, setLoadingApp] = useState(true);
 
+  useEffect(() => {
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        window.location.hash = '/reset-password';
+      }
+    });
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
+
   return (
     <GlobalAuthWrapper>
       <AnimatePresence>{loadingApp && <Preloader onComplete={() => setLoadingApp(false)} />}</AnimatePresence>
