@@ -2,19 +2,35 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { supabase } from '../api/supabaseClient';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    setError('');
+    
+    try {
+      if (!email) throw new Error('Por favor, informe o seu email.');
+      
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + '/#/reset-password'
+      });
+      
+      if (resetError) throw resetError;
+      
       setSubmitted(true);
-    }, 1000);
+    } catch (err) {
+      console.error(err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -27,6 +43,7 @@ export default function ForgotPassword() {
         {!submitted ? (
           <>
             <div className="text-center mb-8">
+              {error && <div className="mb-4 p-3 bg-red-900/50 text-red-300 text-sm rounded-lg border border-red-500/50">{error}</div>}
               <h1 className="text-2xl font-bold text-white mb-2">Esqueceu sua senha?</h1>
               <p className="text-slate-400 text-sm">Enviaremos um link para você redefinir sua senha.</p>
             </div>

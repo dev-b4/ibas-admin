@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { supabase } from '../api/supabaseClient';
 
 export default function ResetPassword() {
   const [password, setPassword] = useState('');
@@ -11,7 +12,7 @@ export default function ResetPassword() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if(password !== confirmPassword) {
       setError('As senhas não coincidem.');
@@ -24,11 +25,20 @@ export default function ResetPassword() {
     
     setError('');
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    
+    try {
+      const { error: updateError } = await supabase.auth.updateUser({ password });
+      
+      if (updateError) throw updateError;
+      
       setSuccess(true);
       setTimeout(() => navigate('/login'), 2000);
-    }, 1500);
+    } catch (err) {
+      console.error(err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getStrength = () => {

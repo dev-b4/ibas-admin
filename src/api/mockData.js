@@ -183,6 +183,24 @@ export function generateAcreditationScore(baseScore, assetId) {
   };
 };
 
+export function updateEvidenceInCache(ev) {
+  if(globalEvidencesCache) {
+    const idx = globalEvidencesCache.findIndex(e => e.id === ev.id);
+    if (idx >= 0) globalEvidencesCache[idx] = ev;
+  }
+}
+
+export function removeEvidenceFromCache(id) {
+  if(globalEvidencesCache) {
+    const idx = globalEvidencesCache.findIndex(e => e.id === id);
+    if (idx >= 0) globalEvidencesCache.splice(idx, 1);
+  }
+}
+
+export function addEvidenceToCache(ev) {
+  if(globalEvidencesCache) globalEvidencesCache.unshift(ev);
+}
+
 export function getEvidences() {
   if (globalEvidencesCache && globalEvidencesCache.length > 0) {
     return globalEvidencesCache;

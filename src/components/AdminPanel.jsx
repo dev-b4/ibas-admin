@@ -60,8 +60,12 @@ export default function AdminPanel() {
   const confirmDelete = () => {
     if (feedbackState.idToDelete) {
       setAndSaveEvidences(prev => prev.filter(e => e.id !== feedbackState.idToDelete));
+      removeEvidenceFromCache(feedbackState.idToDelete);
       supabase.from('evidences').delete().eq('id', feedbackState.idToDelete).then(() => {});
-    logAction(currentUser.email, 'Exclusão de Evidência', projetoSelecionado?.nome || 'N/A', `Excluiu evidência ID: ${feedbackState.idToDelete}`);
+      logAction(currentUser?.email || 'N/A', 'Exclusão de Evidência', projetoSelecionado?.nome || 'N/A', `Excluiu evidência ID: ${feedbackState.idToDelete}`);
+      const newScore = generateAcreditationScore(0, projetoSelecionado.id);
+      setProjetos(prev => prev.map(p => p.id === projetoSelecionado.id ? { ...p, score: newScore.total, acreditacao: newScore } : p));
+      setProjetoSelecionado(prev => ({ ...prev, score: newScore.total, acreditacao: newScore }));
     }
     setFeedbackState({ isOpen: false, idToDelete: null });
     setIsEvidenceDetailsOpen(false);
@@ -147,6 +151,10 @@ export default function AdminPanel() {
         user: `${currentUser.email} (Editado)`
       };
       setAndSaveEvidences(prev => prev.map(e => e.id === editingEvidence.id ? updatedEv : e));
+      updateEvidenceInCache(updatedEv);
+      const newScore = generateAcreditationScore(0, projetoSelecionado.id);
+      setProjetos(prev => prev.map(p => p.id === projetoSelecionado.id ? { ...p, score: newScore.total, acreditacao: newScore } : p));
+      setProjetoSelecionado(prev => ({ ...prev, score: newScore.total, acreditacao: newScore }));
       
       supabase.from('evidences').update({
         name: updatedEv.name,
@@ -175,6 +183,10 @@ export default function AdminPanel() {
         user: currentUser.email
       };
       setAndSaveEvidences([ev, ...evidenciasLocal]);
+      addEvidenceToCache(ev);
+      const newScore = generateAcreditationScore(0, projetoSelecionado.id);
+      setProjetos(prev => prev.map(p => p.id === projetoSelecionado.id ? { ...p, score: newScore.total, acreditacao: newScore } : p));
+      setProjetoSelecionado(prev => ({ ...prev, score: newScore.total, acreditacao: newScore }));
       supabase.from('evidences').insert({
         id: ev.id,
         projeto_id: ev.projetoId,

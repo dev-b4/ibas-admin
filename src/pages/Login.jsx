@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { supabase } from '../api/supabaseClient';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -16,21 +17,34 @@ export default function Login() {
     setLoading(true);
     setError('');
     
-    // Simulate login for now
-    setTimeout(() => {
-      setLoading(false);
-      if(email && password) {
-        // Mock TOTP check
-        const hasTOTP = localStorage.getItem('hasTOTP');
-        if(hasTOTP) {
-          navigate('/verify-totp');
-        } else {
-          navigate('/setup-totp');
-        }
-      } else {
-        setError('Por favor, preencha todos os campos.');
+    try {
+      if (!email || !password) {
+        throw new Error('Por favor, preencha todos os campos.');
       }
-    }, 1000);
+
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (signInError) throw signInError;
+
+      const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors();
+      if (factorsError) throw factorsError;
+
+      const totpFactor = factors?.totp?.[0] || factors?.all?.find(f => f.factor_type === 'totp');
+
+      if (!totpFactor || totpFactor.status !== 'verified') {
+        navigate('/setup-totp');
+      } else {
+        navigate('/verify-totp');
+      }
+    } catch (err) {
+      console.error(err);
+      setError(err.message === 'Invalid login credentials' ? 'E-mail ou senha incorretos.' : err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

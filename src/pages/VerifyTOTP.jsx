@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Shield } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { supabase } from '../api/supabaseClient';
 
 export default function VerifyTOTP() {
   const [code, setCode] = useState('');
   const [timeLeft, setTimeLeft] = useState(30);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -16,12 +18,36 @@ export default function VerifyTOTP() {
     return () => clearInterval(timer);
   }, []);
 
-  const handleVerify = (e) => {
+  const handleVerify = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      navigate('/');
-    }, 1000);
+    setError('');
+    
+    try {
+      const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors();
+      if (factorsError) throw factorsError;
+      
+      const totpFactor = factors?.totp?.[0] || factors?.all?.find(f => f.factor_type === 'totp');
+      if (!totpFactor) throw new Error('Nenhum dispositivo 2FA configurado.');
+      
+      const challenge = await supabase.auth.mfa.challenge({ factorId: totpFactor.id });
+      if (challenge.error) throw challenge.error;
+      
+      const verify = await supabase.auth.mfa.verify({
+        factorId: totpFactor.id,
+        challengeId: challenge.data.id,
+        code
+      });
+      
+      if (verify.error) throw verify.error;
+      
+      navigate('/admin');
+    } catch (err) {
+      console.error(err);
+      setError('Código inválido ou expirado. Tente novamente.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -32,6 +58,7 @@ export default function VerifyTOTP() {
         className="w-full max-w-md p-8 bg-slate-900 rounded-xl shadow-2xl"
       >
         <div className="text-center mb-8">
+        {error && <div className="mb-4 p-3 bg-red-900/50 text-red-300 text-sm rounded-lg border border-red-500/50">{error}</div>}
           <div className="w-16 h-16 bg-[#7C2DFF]/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <Shield className="w-8 h-8 text-[#7C2DFF]" />
           </div>

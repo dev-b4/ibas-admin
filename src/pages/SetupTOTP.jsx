@@ -3,20 +3,58 @@ import { useNavigate } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import { ShieldCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { supabase } from '../api/supabaseClient';
 
 export default function SetupTOTP() {
   const [code, setCode] = useState('');
-  const [secret, setSecret] = useState('JBSWY3DPEHPK3PXP'); // Mock secret
+  const [secret, setSecret] = useState('');
+  const [qrCodeUrl, setQrCodeUrl] = useState('');
+  const [factorId, setFactorId] = useState('');
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleVerify = (e) => {
+  useEffect(() => {
+    const enrollMFA = async () => {
+      try {
+        const { data, error } = await supabase.auth.mfa.enroll({ factorType: 'totp' });
+        if (error) throw error;
+        
+        setFactorId(data.id);
+        setQrCodeUrl(data.totp.qr_code);
+        setSecret(data.totp.secret);
+      } catch (err) {
+        console.error(err);
+        setError('Erro ao iniciar configuração do Authy: ' + err.message);
+      }
+    };
+    enrollMFA();
+  }, []);
+
+
+  const handleVerify = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      localStorage.setItem('hasTOTP', 'true');
-      navigate('/');
-    }, 1000);
+    setError('');
+    try {
+      const challenge = await supabase.auth.mfa.challenge({ factorId });
+      if (challenge.error) throw challenge.error;
+      
+      const verify = await supabase.auth.mfa.verify({
+        factorId,
+        challengeId: challenge.data.id,
+        code
+      });
+      
+      if (verify.error) throw verify.error;
+      
+      navigate('/admin');
+    } catch (err) {
+      console.error(err);
+      setError('Código inválido ou expirado. Tente novamente.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -27,6 +65,7 @@ export default function SetupTOTP() {
         className="w-full max-w-lg p-8 bg-slate-900 rounded-xl shadow-2xl"
       >
         <div className="text-center mb-8">
+        {error && <div className="mb-4 p-3 bg-red-900/50 text-red-300 text-sm rounded-lg border border-red-500/50">{error}</div>}
           <div className="w-16 h-16 bg-[#7C2DFF]/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <ShieldCheck className="w-8 h-8 text-[#7C2DFF]" />
           </div>
