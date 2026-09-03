@@ -27,7 +27,7 @@ export default function VerifyTOTP() {
       const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors();
       if (factorsError) throw factorsError;
       
-      const totpFactor = factors?.totp?.[0] || factors?.all?.find(f => f.factor_type === 'totp');
+      const totpFactor = factors?.all?.find(f => f.factor_type === 'totp' && f.status === 'verified');
       if (!totpFactor) throw new Error('Nenhum dispositivo 2FA configurado.');
       
       const challenge = await supabase.auth.mfa.challenge({ factorId: totpFactor.id });

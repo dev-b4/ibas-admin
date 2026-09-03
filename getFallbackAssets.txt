@@ -1,0 +1,27 @@
+const getFallbackAssets = () => {
+  return [
+    {
+      id: '0xc88d4860d4ddb7a7621b4a919360b4775d93a5ef',
+      nome: 'Projeto BF Terra I e II',
+      categoria: 'Floresta',
+      preco: 95,
+      peso: 0.143,
+      get impacto() { return (this.score * this.peso) / 1.67; },
+      variacao: 0,
+      score: 1100,
+      volume: '1.250.000',
+      status: 'Listado',
+      dataListagem: '14/07/2025',
+      metodologia: 'Bureau Veritas',
+      verificacao: 'Polygon',
+      ultimaAtualizacao: '21/08/2025 16:40',
+      localizacao: 'Mato Grosso e Goiás - Brasil',
+      links: {
+        whitepaper: "#",
+        documento: "#",
+        polygonscan: "https://polygonscan.com/token/0xc88d4860d4ddb7a7621b4a919360b4775d93a5ef"
+      },
+      acreditacao: { total: 1100, nivel: 'AAA', detalhes: {} }
+    }
+  ];
+};

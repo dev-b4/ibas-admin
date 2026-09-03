@@ -17,6 +17,12 @@ export default function SetupTOTP() {
   useEffect(() => {
     const enrollMFA = async () => {
       try {
+        const { data: factors } = await supabase.auth.mfa.listFactors();
+        const unverified = factors?.all?.filter(f => f.factor_type === 'totp' && f.status === 'unverified') || [];
+        for (const f of unverified) {
+          await supabase.auth.mfa.unenroll({ factorId: f.id });
+        }
+        
         const { data, error } = await supabase.auth.mfa.enroll({ factorType: 'totp' });
         if (error) throw error;
         

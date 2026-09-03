@@ -32,7 +32,7 @@ export default function Login() {
       const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors();
       if (factorsError) throw factorsError;
 
-      const totpFactor = factors?.totp?.[0] || factors?.all?.find(f => f.factor_type === 'totp');
+      const totpFactor = factors?.all?.find(f => f.factor_type === 'totp' && f.status === 'verified');
 
       if (!totpFactor || totpFactor.status !== 'verified') {
         navigate('/setup-totp');

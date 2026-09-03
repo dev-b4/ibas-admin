@@ -53,7 +53,7 @@ function AdminAuthWrapper({ children }) {
 
         // Check MFA status
         const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors();
-        const totpFactor = factors?.totp?.[0] || factors?.all?.find(f => f.factor_type === 'totp');
+        const totpFactor = factors?.all?.find(f => f.factor_type === 'totp' && f.status === 'verified');
         
         if (!totpFactor || totpFactor.status !== 'verified') {
           navigate('/setup-totp');

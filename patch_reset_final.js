@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import fs from 'fs';
+const file = 'src/pages/ResetPassword.jsx';
+const newContent = `import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle, AlertCircle, Shield } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -24,7 +26,7 @@ export default function ResetPassword() {
         if (assuranceLevel?.nextLevel === 'aal2' && assuranceLevel?.currentLevel === 'aal1') {
           setNeedsMFA(true);
           const { data: factors } = await supabase.auth.mfa.listFactors();
-          const totp = factors?.all?.find(f => f.factor_type === 'totp' && f.status === 'verified');
+          const totp = factors?.totp?.[0] || factors?.all?.find(f => f.factor_type === 'totp' && f.status === 'verified');
           if (totp) setFactorId(totp.id);
         }
       } catch (err) {
@@ -72,7 +74,7 @@ export default function ResetPassword() {
         if (updateError.message.includes('AAL2') || updateError.message.includes('MFA')) {
           setNeedsMFA(true);
           const { data: factors } = await supabase.auth.mfa.listFactors();
-          const totp = factors?.all?.find(f => f.factor_type === 'totp' && f.status === 'verified');
+          const totp = factors?.totp?.[0] || factors?.all?.find(f => f.factor_type === 'totp' && f.status === 'verified');
           if (totp) setFactorId(totp.id);
           throw new Error('Código Authy necessário. Por favor, digite o código de 6 dígitos que apareceu abaixo.');
         }
@@ -133,9 +135,9 @@ export default function ResetPassword() {
                 {password.length > 0 && (
                   <div className="mt-2">
                     <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                      <div className={`h-full ${strength.color} ${strength.w} transition-all duration-300`} />
+                      <div className={\`h-full \${strength.color} \${strength.w} transition-all duration-300\`} />
                     </div>
-                    <p className={`text-xs mt-1 text-right ${strength.color.replace('bg-', 'text-')}`}>{strength.label}</p>
+                    <p className={\`text-xs mt-1 text-right \${strength.color.replace('bg-', 'text-')}\`}>{strength.label}</p>
                   </div>
                 )}
               </div>
@@ -162,7 +164,7 @@ export default function ResetPassword() {
                     type="text" 
                     maxLength={6}
                     value={mfaCode}
-                    onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, ''))}
+                    onChange={(e) => setMfaCode(e.target.value.replace(/\\D/g, ''))}
                     className="w-full px-4 py-3 bg-slate-800 border border-amber-700/30 rounded-lg focus:outline-none focus:border-amber-500 transition-colors text-center tracking-[0.5em] text-xl font-bold"
                     placeholder="000000"
                     required
@@ -192,3 +194,7 @@ export default function ResetPassword() {
     </div>
   );
 }
+`;
+
+fs.writeFileSync(file, newContent);
+console.log("Patched ResetPassword syntax");
