@@ -1,0 +1,257 @@
+.dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  width: 100%;
+}
+
+.dashboard-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.dashboard-header h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  letter-spacing: -1px;
+}
+
+.subtitle {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+}
+
+.main-score-card {
+  padding: 3rem;
+  text-align: center;
+  margin-bottom: 4rem;
+  position: relative;
+  overflow: hidden;
+  animation: pulse-glow 4s infinite;
+}
+
+.score-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 1.5rem;
+}
+
+.score-header h2 {
+  font-size: 1.5rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.text-accent {
+  color: var(--accent-color);
+}
+
+.icon-pulse {
+  animation: pulse-glow 2s infinite;
+  border-radius: 50%;
+}
+
+.score-value {
+  margin-bottom: 2rem;
+}
+
+.score-value .number {
+  font-size: 6rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.score-value .unit {
+  font-size: 2rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.score-footer {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+}
+
+.info-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.05);
+  padding: 8px 16px;
+  border-radius: 20px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.section-title {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.assets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.asset-card {
+  padding: 1.5rem;
+  position: relative;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+
+.asset-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 230, 118, 0.1);
+  border-color: rgba(0, 230, 118, 0.3);
+}
+
+.asset-card.expanded {
+  grid-column: 1 / -1;
+  border-bottom-color: var(--accent-color);
+  background: rgba(18, 24, 35, 0.95);
+  box-shadow: 0 0 30px rgba(0, 230, 118, 0.15);
+}
+
+.executive-panel-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 30px;
+  margin-top: 25px;
+  padding-top: 25px;
+  border-top: 1px dashed rgba(255,255,255,0.15);
+}
+
+@media (max-width: 900px) {
+  .executive-panel-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* NFT Card Styling */
+.nft-card {
+  background: linear-gradient(145deg, rgba(30, 40, 55, 0.9), rgba(15, 20, 28, 0.95));
+  border: 1px solid rgba(0, 230, 118, 0.4);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.nft-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: url('data:image/svg+xml;utf8,<svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><circle cx="2" cy="2" r="1" fill="rgba(255,255,255,0.05)"/></svg>');
+  z-index: 0;
+  pointer-events: none;
+}
+
+.nft-card-content {
+  position: relative;
+  z-index: 1;
+}
+
+.nft-hash {
+  font-family: monospace;
+  font-size: 0.7rem;
+  color: var(--accent-color);
+  word-break: break-all;
+  background: rgba(0, 230, 118, 0.1);
+  padding: 8px;
+  border-radius: 4px;
+  margin-top: 10px;
+}
+
+/* Progress Bars */
+.pillar-progress-container {
+  margin-bottom: 15px;
+}
+
+.pillar-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+  font-size: 0.85rem;
+  color: #8b9bb4;
+}
+
+.pillar-track {
+  height: 8px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.pillar-fill {
+  height: 100%;
+  background: var(--accent-color);
+  border-radius: 4px;
+  transition: width 1s ease-out;
+  box-shadow: 0 0 10px var(--accent-color);
+}
+
+.asset-card h4 {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.asset-price {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  white-space: nowrap;
+}
+
+.asset-weight {
+  font-size: 0.9rem;
+  color: var(--accent-color);
+  opacity: 0.8;
+}
+
+.trend-icon {
+  color: var(--accent-color);
+  opacity: 0.8;
+  margin-left: 8px;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  gap: 1rem;
+  color: var(--text-muted);
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid rgba(0, 230, 118, 0.1);
+  border-radius: 50%;
+  border-top-color: var(--accent-color);
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
