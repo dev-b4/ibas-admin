@@ -2,6 +2,8 @@ import { supabase } from './supabaseClient';
 // Mock Data atualizado para V2 com 11 Pilares e Evidências integrado à API B4 Real
 import defaultEvidences from './seed_evidences_full.json';
 
+let globalEvidencesCache = null;
+
 
 // --- AUTO-CLEANUP ROUTINE ---
 try {
@@ -55,7 +57,8 @@ try {
 
 
 export const fetchIbasData = async () => {
-  let realPtax = 5.1625;
+  let realPtax = 5.1625; // Mockado inicialmente, atualizado via BCB
+  
   try {
     const today = new Date();
     const formattedDate = `${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}-${today.getFullYear()}`;
@@ -64,74 +67,163 @@ export const fetchIbasData = async () => {
     if (ptaxData && ptaxData.value && ptaxData.value.length > 0) {
       realPtax = ptaxData.value[ptaxData.value.length - 1].cotacaoVenda;
     }
-  } catch (error) {}
-
-  // Fetch from Supabase
-  const { data: dbProjects, error } = await supabase.from('projects').select('*');
-  if (error || !dbProjects || dbProjects.length === 0) {
-    return {
-      moedaBase: { ticker: 'B4TRII', descricao: 'Pareada ao Dólar' },
-      ptax: realPtax, 
-      fatorNormalizacao: 1.67,
-      ativos: [],
-      history: registerDailyIbasIndex(100)
-    };
+  } catch (error) {
+    console.error("Erro ao buscar PTAX real do BCB:", error);
   }
 
-  // Transform db format to frontend format
-  const validAssets = dbProjects.map(p => ({
-    ...p,
-    displayName: p.nome,
-    nicho: p.categoria,
-    photo: p.logo_url,
-    dataEmissao: p.data_listagem,
-    polygonscan: p.links?.polygonscan || '',
-    acreditacao: p.acreditacao || { total: 0, nivel: 'Não Avaliado', detalhes: {} }
-  }));
+  try {
+    const res = await fetch("https://exchange.b4.capital/api/v1/collections/getAllCollections");
+    const data = await res.json();
+    const collections = data.collections || [];
 
-  // Recalculate weights based on active ones
-  const activeAssets = validAssets.filter(a => a.status === 'Listado' || a.status === 'Custodiado');
-  const weight = activeAssets.length > 0 ? (1 / activeAssets.length) : 0;
-  
-  validAssets.forEach(asset => {
-    if (asset.status === 'Listado' || asset.status === 'Custodiado') {
-      asset.peso = weight;
-    } else {
-      asset.peso = 0;
+    const bfTerra1 = collections.find(c => c.contract_address?.toLowerCase() === "0xc88d4860d4ddb7a7621b4a919360b4775d93a5ef");
+    const bfTerra2 = collections.find(c => c.contract_address?.toLowerCase() === "0x21031505ef6eda4c078da90bbc9fd5e4b1d120ff");
+    let bfTerraVolumeStr = '1.368.685';
+    if (bfTerra1 && bfTerra2) {
+      const sum = parseFloat(bfTerra1.price || 0) + parseFloat(bfTerra2.price || 0);
+      bfTerraVolumeStr = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 0 }).format(sum);
+    } else if (bfTerra1) {
+      bfTerraVolumeStr = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 0 }).format(parseFloat(bfTerra1.price || 0));
     }
-    
-    // Garantir que o impacto é calculado dinamicamente
-    if (!Object.getOwnPropertyDescriptor(asset, 'impacto')?.get) {
-      Object.defineProperty(asset, 'impacto', {
-        get() { return ((this.score || 0) * this.peso) / 1.67; },
-        configurable: true,
-        enumerable: true
+
+    const permittedContracts = [
+      "0xc8b8b674a6bab9cb09b4a660b8993035c1d923b9", // Arace Iba
+      "0x90192d63e476b7ce061c0dbbad10fde95c5e1514", // Apoena Kaa
+      "0xd69f495fd95d429954a63196d499dcfe4f3c87f5", // Tonca
+      "0xc88d4860d4ddb7a7621b4a919360b4775d93a5ef", // BF Terra I (Representará os dois)
+      "0x7466eb42b5b165d8b133a7040870b2da6c060546", // Yaku
+      "0xc84fc3cdc3c6d0713ecc6008e50efcffc9b14b3b", // Owie Bitioni
+      "0xfe7dee81b1a416068a5ce01f3489bd5c9996ae62"  // Dowedi Mitir
+    ];
+
+    let validAssets = collections
+      .filter(c => c.contract_address && permittedContracts.includes(c.contract_address.toLowerCase()))
+      .map(c => {
+        const assetId = c.contract_address.toLowerCase();
+        const info = {
+          "0xc88d4860d4ddb7a7621b4a919360b4775d93a5ef": { displayName: "Projeto BF Terra I e II", nicho: "Floresta", metodologia: "Greenline", validacao: "Bureau Veritas", originador: "BF Terra", volume: "1.368.685", localizacao: "Mato Grosso - Brasil", dataEmissao: "14/07/2025", photo: "https://b4-bucket.s3.amazonaws.com/7cf009f9-3a27-4b8a-b43a-e7438e125b0d__1752526365848.Image06b10d4a-d006-4a72-9747-5366baaa2fed", cover: "https://b4-bucket.s3.amazonaws.com/7cf009f9-3a27-4b8a-b43a-e7438e125b0d__1752526368210.Image5809cea7-f5ff-496e-9fb5-8adf344a8494" },
+          "0x90192d63e476b7ce061c0dbbad10fde95c5e1514": { displayName: "Projeto Apoena Kaa", nicho: "Floresta", metodologia: "Triple C Protocol", validacao: "Luxcs Carbon", originador: "Franciane Sustentabilidade LTDA", volume: "1.655.540", localizacao: "Aveiro (PA), Tapajós - Brasil", dataEmissao: "06/02/2026", photo: "https://b4-bucket.s3.amazonaws.com/7cf009f9-3a27-4b8a-b43a-e7438e125b0d__1755362313297.Imagef84eff84-20e1-4d92-8389-aabd4e3df6d3", cover: "https://b4-bucket.s3.amazonaws.com/7cf009f9-3a27-4b8a-b43a-e7438e125b0d__1755362315809.Image121bec3b-bab0-4584-988e-1920af082b89" },
+          "0xc8b8b674a6bab9cb09b4a660b8993035c1d923b9": { displayName: "Projeto Arace iba", nicho: "Floresta", metodologia: "Triple C Protocol", validacao: "Luxcs Carbon", originador: "JJG Carbon", volume: "3.714.724", localizacao: "Aveiro (PA), Tapajós - Brasil", dataEmissao: "15/08/2025", photo: "https://b4-bucket.s3.amazonaws.com/7cf009f9-3a27-4b8a-b43a-e7438e125b0d__1755291088300.Image5c4318a5-3564-499b-a490-0635e150c4ff", cover: "https://b4-bucket.s3.amazonaws.com/7cf009f9-3a27-4b8a-b43a-e7438e125b0d__1755291091192.Image149fab4d-e9d4-4cb5-837b-45b96a1ade8f" },
+          "0xfe7dee81b1a416068a5ce01f3489bd5c9996ae62": { displayName: "Projeto Dowedi Mitir", nicho: "Floresta", metodologia: "SOCIALCARBON Standard", validacao: "SocialCarbon", originador: "Vertecotech", volume: "2.806", localizacao: "Fazenda Cristal - Brasil", dataEmissao: "01/04/2026", photo: "https://b4-bucket.s3.amazonaws.com/7cf009f9-3a27-4b8a-b43a-e7438e125b0d__1775070807343.Image766393a6-704f-4b0a-8ac7-c1017bbf9566", cover: "https://b4-bucket.s3.amazonaws.com/7cf009f9-3a27-4b8a-b43a-e7438e125b0d__1775070807238.Image38a2edae-f7df-4779-a8b0-69b84ceb030c" },
+          "0xc84fc3cdc3c6d0713ecc6008e50efcffc9b14b3b": { displayName: "Projeto Owie Bitioni", nicho: "Floresta", metodologia: "SOCIALCARBON Standard", validacao: "SocialCarbon", originador: "Vertecotech", volume: "82.941", localizacao: "Fazenda J Crestani - Brasil", dataEmissao: "01/04/2026", photo: "https://b4-bucket.s3.amazonaws.com/7cf009f9-3a27-4b8a-b43a-e7438e125b0d__1775074975420.Image60344ef5-ad43-47e6-8ac5-35cd15f7b0f9", cover: "https://b4-bucket.s3.amazonaws.com/7cf009f9-3a27-4b8a-b43a-e7438e125b0d__1775074945909.Image1e3322c9-ac9f-44ea-9535-5d488cf1ee26" },
+          "0xd69f495fd95d429954a63196d499dcfe4f3c87f5": { displayName: "Projeto Tonca", nicho: "Floresta", metodologia: "CeCicle Environmental Reductions (CER)", validacao: "CeCicle", originador: "WTonca", volume: "832.125", localizacao: "Brasil", dataEmissao: "02/02/2026", photo: "https://b4-bucket.s3.amazonaws.com/7cf009f9-3a27-4b8a-b43a-e7438e125b0d__1770061652466.Image7790bde2-2975-48e1-a620-3745fa82dbff", cover: "https://b4-bucket.s3.amazonaws.com/7cf009f9-3a27-4b8a-b43a-e7438e125b0d__1770061861502.Image94fa834e-1783-4b17-bfe4-d6731b0708bd" },
+          "0x7466eb42b5b165d8b133a7040870b2da6c060546": { displayName: "Projeto Yaku Yvira", nicho: "PSA - Pagamento por Serviços Ambientais", metodologia: "Lei Federal nº 14.119/2021 (PSA)", validacao: "Política Nacional de PSA", originador: "Maria do S. Sensão", volume: "–", localizacao: "Ubatuba - SP - Brasil", dataEmissao: "03/04/2026", photo: "https://b4-bucket.s3.amazonaws.com/7cf009f9-3a27-4b8a-b43a-e7438e125b0d__1775242473309.Imagec4042dcd-f6e4-457c-8bab-7c17ffe63159", cover: "https://b4-bucket.s3.amazonaws.com/7cf009f9-3a27-4b8a-b43a-e7438e125b0d__1775242477180.Image6ebe8236-b9b1-4e39-8210-ac22dfa1384f" },
+        }[assetId] || {};
+
+        let displayName = info.displayName || c.name;
+        let whitepaper = c.whitepaper_url || "#";
+        let documentUrl = c.document_url || "#";
+        let blockExplorer = `https://polygonscan.com/token/0x9f727a1350b11f6c0855ddf718ae8bc058a5342e#transactions`;
+
+        return {
+          id: assetId,
+          nome: displayName,
+          categoria: info.nicho || 'Floresta',
+          preco: parseFloat(c.price) || 0,
+          peso: 1 / permittedContracts.length,
+          score: generateAcreditationScore(0, assetId).total,
+          get impacto() { return (this.score * this.peso) / 1.67; }, // Cálculo real da contribuição para o índice
+          variacao: 0, // 0.00% pois ainda não temos histórico gravado individual de ontem
+          volume: info.volume || (c.items ? (c.items * 1000).toString() : '–'),
+          status: assetId === '0xd69f495fd95d429954a63196d499dcfe4f3c87f5' ? 'Custodiado' : 'Listado',
+          dataListagem: info.dataEmissao || new Date(c.when).toLocaleDateString('pt-BR'),
+          metodologia: info.metodologia || 'B4 Padrão',
+          verificacao: info.validacao || 'Polygon',
+          localizacao: info.localizacao || 'Brasil',
+          originador: info.originador || 'B4',
+          ultimaAtualizacao: '27/08/2025',
+          photo: info.photo || null,
+          cover: info.cover || null,
+          links: {
+            whitepaper: whitepaper,
+            documento: documentUrl,
+            polygonscan: blockExplorer
+          },
+          acreditacao: generateAcreditationScore(0, assetId)
+        };
+      });
+
+    try {
+      const customSaved = localStorage.getItem('b4_custom_projects');
+      if (customSaved) {
+        let parsedCustom = JSON.parse(customSaved);
+        if (Array.isArray(parsedCustom)) {
+          // Dynamic Score Calculation for Custom Projects
+          parsedCustom = parsedCustom.map(cp => {
+            const dynamicScore = [1,2,3,4,5,6,7,8,9,10,11].reduce((acc, num) => acc + calculatePilarScore(cp.id, num, num > 9 ? 50 : 100), 0);
+            cp.score = dynamicScore;
+            return cp;
+          });
+          validAssets = [...validAssets, ...parsedCustom];
+        }
+      }
+    } catch(e) {}
+
+    // FORÇAR INJEÇÃO DO GREEN GUARDIANS
+    if (!validAssets.some(p => p.nome === 'Green Guardians')) {
+      const gg = {
+        id: 'custom_greenguardians_1',
+        nome: 'Green Guardians',
+        categoria: 'Floresta',
+        preco: 3.93,
+        volume: '9.189.186',
+        status: 'Custodiado',
+        originador: 'Eco Plex',
+        metodologia: '***********',
+        verificacao: '*************',
+        localizacao: 'Município de Apuí, UF - Amazonas',
+        dataListagem: '09/02/2026',
+        score: [1,2,3,4,5,6,7,8,9,10,11].reduce((acc, num) => acc + calculatePilarScore('custom_greenguardians_1', num, num > 9 ? 50 : 100), 0),
+        peso: 0.1,
+        acreditacao: {
+          total: 0, nivel: 'Não Avaliado', stars: '',
+          detalhes: { p1:0, p2:0, p3:0, p4:0, p5:0, p6:0, p7:0, p8:0, p9:0, p10:0, p11:0 }
+        },
+        links: { whitepaper: '', documento: '', polygonscan: 'https://polygonscan.com/token/0x7bd158a78413890a657cb08fccfc19ca5cab55aa#transactions' }
+      };
+      validAssets.unshift(gg); // Add to the top
+    }
+
+    // RECALCULAR PESOS DE FORMA DINÂMICA E CORRETA
+    if (validAssets.length > 0) {
+      const listedAssets = validAssets.filter(a => a.status === 'Listado' || a.status === 'Custodiado');
+      const equalWeight = listedAssets.length > 0 ? 1 / listedAssets.length : 0;
+      
+      validAssets = validAssets.map(asset => {
+        if (asset.status === 'Listado' || asset.status === 'Custodiado') {
+          asset.peso = equalWeight;
+        } else {
+          asset.peso = 0; // Outros status (ex: Em Avaliação) não compõem o índice
+        }
+        
+        // Garantir que o impacto é calculado caso não seja um getter
+        if (!Object.getOwnPropertyDescriptor(asset, 'impacto')?.get) {
+          Object.defineProperty(asset, 'impacto', {
+            get() { return ((this.score || 0) * this.peso) / 1.67; },
+            configurable: true,
+            enumerable: true
+          });
+        }
+        
+        return asset;
       });
     }
-  });
 
-  const ibasIndex = validAssets.reduce((acc, curr) => acc + curr.impacto, 0);
-  let hist = await getIbasHistory();
-  if (hist.length > 0) {
-    const today = new Date().toLocaleDateString('pt-BR');
-    const todayIndex = hist.findIndex(h => h.date === today);
-    if (todayIndex >= 0) { hist[todayIndex].close = ibasIndex; } else { hist.push({ date: today, close: ibasIndex, max: ibasIndex, min: ibasIndex }); }
-    const ymdDate = new Date().toISOString().split('T')[0];
-    supabase.from('ibas_history').upsert({ date: ymdDate, value: ibasIndex }, { onConflict: 'date' }).then(() => {});
+    return {
+      moedaBase: { ticker: 'B4TRII', descricao: `Pareada ao Dólar` },
+      ptax: realPtax, 
+      fatorNormalizacao: 1.67,
+      ativos: validAssets.length > 0 ? validAssets : getFallbackAssets()
+    };
+  } catch (error) {
+    console.error("Erro na API, usando Fallback V2", error);
+    return {
+      moedaBase: { ticker: 'B4TRII', descricao: `Pareada ao Dólar` },
+      ptax: realPtax, 
+      fatorNormalizacao: 1.67,
+      ativos: getFallbackAssets()
+    };
   }
-  
-  return {
-    moedaBase: { ticker: 'B4TRII', descricao: 'Pareada ao Dólar' },
-    ptax: realPtax, 
-    fatorNormalizacao: 1.67,
-    ativos: validAssets,
-    history: hist && hist.length > 0 ? hist : registerDailyIbasIndex(ibasIndex),
-    metrics: {
-      marketCap: 45000000000,
-      volume24h: 1200000,
-      ptax: realPtax
-    }
-  };
 };
 
 export const mockEvidences = [];
@@ -183,6 +275,9 @@ export const generateAcreditationScore = (baseScore, assetId) => {
 };
 
 export const getEvidences = () => {
+  if (globalEvidencesCache && globalEvidencesCache.length > 0) {
+    return globalEvidencesCache;
+  }
   const saved = localStorage.getItem('b4_evidences_local');
   let evs = [];
   if (saved && saved !== "undefined") {
@@ -192,39 +287,6 @@ export const getEvidences = () => {
     } catch(e) {}
   }
   if (evs.length === 0) evs = defaultEvidences || [];
-
-  // FORCE INJECT YAKU SEEDS TO PREVENT ANY TIMING OR CACHE ISSUES
-  const yakuId = '0x7466eb42b5b165d8b133a7040870b2da6c060546';
-  if (!evs.some(e => e.projetoId === yakuId && e.id === "nft_yaku_1")) {
-    evs.push(
-      { id: "nft_yaku_1", projetoId: yakuId, pilarNum: 7, name: "Certificado de PSA R$100", type: "Blockchain", source: "Ferramenta de acesso à informações registradas em blockchain.", status: "Validada", date: "01/09/2026", user: "compliance@b4.capital", linkUrl: "https://b4.capital/pt/consulta-publica/#projeto/0x7466eb42b5b165d8b133a7040870b2da6c060546/id/1" },
-      { id: "nft_yaku_2", projetoId: yakuId, pilarNum: 7, name: "Certificado de PSA R$500", type: "Blockchain", source: "Ferramenta de acesso à informações registradas em blockchain.", status: "Validada", date: "01/09/2026", user: "compliance@b4.capital", linkUrl: "https://b4.capital/pt/consulta-publica/#projeto/0x7466eb42b5b165d8b133a7040870b2da6c060546/id/2" },
-      { id: "nft_yaku_3", projetoId: yakuId, pilarNum: 7, name: "Certificado de PSA R$1.000", type: "Blockchain", source: "Ferramenta de acesso à informações registradas em blockchain.", status: "Validada", date: "01/09/2026", user: "compliance@b4.capital", linkUrl: "https://b4.capital/pt/consulta-publica/#projeto/0x7466eb42b5b165d8b133a7040870b2da6c060546/id/3" },
-      { id: "nft_yaku_4", projetoId: yakuId, pilarNum: 7, name: "Certificado de PSA R$10.000", type: "Blockchain", source: "Ferramenta de acesso à informações registradas em blockchain.", status: "Validada", date: "01/09/2026", user: "compliance@b4.capital", linkUrl: "https://b4.capital/pt/consulta-publica/#projeto/0x7466eb42b5b165d8b133a7040870b2da6c060546/id/4" },
-      { id: "token_yaku", projetoId: yakuId, pilarNum: 7, name: "Utility Token", type: "Link", source: "Ferramenta de acesso à informações registradas em blockchain.", status: "Validada", date: "01/09/2026", user: "compliance@b4.capital", linkUrl: "https://polygonscan.com/token/0x66a4e18C37DA958EC1449E056477DfAd020CDd28#transactions" },
-      { id: "consulta_yaku", projetoId: yakuId, pilarNum: 7, name: "Consulta Pública", type: "Link", source: "Ferramenta de acesso à informações registradas em blockchain.", status: "Validada", date: "01/09/2026", user: "compliance@b4.capital", linkUrl: "https://b4.capital/pt/consulta-publica/#projeto/0x7466eb42b5b165d8b133a7040870b2da6c060546" }
-    );
-    try { localStorage.setItem('b4_evidences_local', JSON.stringify(evs)); } catch(e) {}
-  }
-  
-  // FORCE INJECT GREEN GUARDIANS UTILITY TOKEN
-  let realGgId = 'custom_greenguardians_1';
-  try {
-    const customSaved = localStorage.getItem('b4_custom_projects');
-    if (customSaved) {
-      const parsed = JSON.parse(customSaved);
-      const ggProj = parsed.find(p => p.nome === 'Green Guardians');
-      if (ggProj) realGgId = ggProj.id;
-    }
-  } catch(e) {}
-
-  if (!evs.some(e => e.projetoId === realGgId && e.id === "token_gg")) {
-    evs.push(
-      { id: "token_gg", projetoId: realGgId, pilarNum: 7, name: "Utility Token", type: "Link", source: "Ferramenta de acesso à informações registradas em blockchain.", status: "Validada", date: new Date().toLocaleDateString('pt-BR'), user: "compliance@b4.capital", linkUrl: "https://polygonscan.com/token/0x7bd158a78413890a657cb08fccfc19ca5cab55aa#transactions" }
-    );
-    try { localStorage.setItem('b4_evidences_local', JSON.stringify(evs)); } catch(e) {}
-  }
-  
   return evs;
 };
 
@@ -496,4 +558,32 @@ export const registerDailyIbasIndex = (currentScore) => {
   }, { onConflict: 'date' }).then(() => {});
 
   return history;
+};
+
+const getFallbackAssets = () => {
+  return [
+    {
+      id: '0xc88d4860d4ddb7a7621b4a919360b4775d93a5ef',
+      nome: 'Projeto BF Terra I e II',
+      categoria: 'Floresta',
+      preco: 95,
+      peso: 0.143,
+      get impacto() { return (this.score * this.peso) / 1.67; },
+      variacao: 0,
+      score: generateAcreditationScore(0, '0xc88d4860d4ddb7a7621b4a919360b4775d93a5ef').total,
+      volume: '1.250.000',
+      status: 'Listado',
+      dataListagem: '14/07/2025',
+      metodologia: 'Bureau Veritas',
+      verificacao: 'Polygon',
+      ultimaAtualizacao: '21/08/2025 16:40',
+      localizacao: 'Mato Grosso e Goiás - Brasil',
+      links: {
+        whitepaper: "#",
+        documento: "#",
+        polygonscan: "https://polygonscan.com/token/0xc88d4860d4ddb7a7621b4a919360b4775d93a5ef"
+      },
+      acreditacao: generateAcreditationScore(0, '0xc88d4860d4ddb7a7621b4a919360b4775d93a5ef')
+    }
+  ];
 };
