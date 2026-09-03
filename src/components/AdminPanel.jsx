@@ -67,6 +67,7 @@ export default function AdminPanel() {
   const confirmDelete = () => {
     if (feedbackState.idToDelete) {
       setAndSaveEvidences(prev => prev.filter(e => e.id !== feedbackState.idToDelete));
+      supabase.from('evidences').delete().eq('id', feedbackState.idToDelete).then(() => {});
     logAction(currentUser.email, 'Exclusão de Evidência', projetoSelecionado?.nome || 'N/A', `Excluiu evidência ID: ${feedbackState.idToDelete}`);
     }
     setFeedbackState({ isOpen: false, idToDelete: null });
@@ -146,19 +147,34 @@ export default function AdminPanel() {
 
   const handleSaveEvidence = (newEv) => {
     if (editingEvidence) {
-      setAndSaveEvidences(prev => prev.map(e => e.id === editingEvidence.id ? {
-        ...e,
+      const updatedEv = {
+        ...editingEvidence,
         ...newEv,
         date: new Date().toLocaleDateString('pt-BR'),
         user: `${currentUser.email} (Editado)`
-      } : e));
+      };
+      setAndSaveEvidences(prev => prev.map(e => e.id === editingEvidence.id ? updatedEv : e));
+      
+      supabase.from('evidences').update({
+        name: updatedEv.name,
+        type: updatedEv.type,
+        source: updatedEv.source,
+        status: updatedEv.status,
+        link_url: updatedEv.linkUrl,
+        file_url: updatedEv.fileUrl,
+        date: updatedEv.date,
+        validated_by: updatedEv.user
+      }).eq('id', updatedEv.id).then(() => {});
+      
+      // We don't want the old replace to match, so we comment out what it replaced:
+      
       setEditingEvidence(null);
       setIsAddEvidenceModalOpen(false);
       logAction(currentUser.email, 'Edição de Evidência', projetoSelecionado.nome, `Editou evidência: ${newEv.name}`);
     } else {
       const today = new Date().toLocaleDateString('pt-BR');
       const ev = {
-        id: Math.random(),
+        id: Math.random().toString(),
         ...newEv,
         projetoId: projetoSelecionado.id,
         pilarNum: pilarSelecionado.num,
@@ -166,6 +182,19 @@ export default function AdminPanel() {
         user: currentUser.email
       };
       setAndSaveEvidences([ev, ...evidenciasLocal]);
+      supabase.from('evidences').insert({
+        id: ev.id,
+        projeto_id: ev.projetoId,
+        pilar_num: ev.pilarNum,
+        name: ev.name,
+        type: ev.type,
+        source: ev.source,
+        status: ev.status,
+        link_url: ev.linkUrl,
+        file_url: ev.fileUrl,
+        date: ev.date,
+        validated_by: ev.user
+      }).then(() => {});
       logAction(currentUser.email, 'Nova Evidência', projetoSelecionado.nome, `Adicionou evidência: ${newEv.name}`);
     }
   };
