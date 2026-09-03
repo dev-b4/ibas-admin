@@ -58,17 +58,24 @@ export default function AdminPanel() {
   };
 
   const confirmDelete = () => {
-    if (feedbackState.idToDelete) {
-      setAndSaveEvidences(prev => prev.filter(e => e.id !== feedbackState.idToDelete));
-      removeEvidenceFromCache(feedbackState.idToDelete);
-      supabase.from('evidences').delete().eq('id', feedbackState.idToDelete).then(() => {});
-      logAction(currentUser?.email || 'N/A', 'Exclusão de Evidência', projetoSelecionado?.nome || 'N/A', `Excluiu evidência ID: ${feedbackState.idToDelete}`);
-      const newScore = generateAcreditationScore(0, projetoSelecionado.id);
-      setProjetos(prev => prev.map(p => p.id === projetoSelecionado.id ? { ...p, score: newScore.total, acreditacao: newScore } : p));
-      setProjetoSelecionado(prev => ({ ...prev, score: newScore.total, acreditacao: newScore }));
+    try {
+      if (feedbackState.idToDelete) {
+        setAndSaveEvidences(prev => prev.filter(e => e.id !== feedbackState.idToDelete));
+        removeEvidenceFromCache(feedbackState.idToDelete);
+        supabase.from('evidences').delete().eq('id', feedbackState.idToDelete).then(() => {}).catch(e => console.error(e));
+        logAction(currentUser?.email || 'N/A', 'Exclusão de Evidência', projetoSelecionado?.nome || 'N/A', `Excluiu evidência ID: ${feedbackState.idToDelete}`);
+        const newScore = generateAcreditationScore(0, projetoSelecionado.id);
+        setProjetos(prev => prev.map(p => p.id === projetoSelecionado.id ? { ...p, score: newScore.total, acreditacao: newScore } : p));
+        setProjetoSelecionado(prev => ({ ...prev, score: newScore.total, acreditacao: newScore }));
+      }
+      setFeedbackState({ isOpen: false, idToDelete: null });
+      setIsEvidenceDetailsOpen(false);
+    } catch(err) {
+      alert("Erro ao excluir: " + err.message + "\n" + err.stack);
+      console.error(err);
+      setFeedbackState({ isOpen: false, idToDelete: null });
+      setIsEvidenceDetailsOpen(false);
     }
-    setFeedbackState({ isOpen: false, idToDelete: null });
-    setIsEvidenceDetailsOpen(false);
   };
 
   const cancelDelete = () => {
