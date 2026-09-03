@@ -444,8 +444,8 @@ if (projetoId === '0xc88d4860d4ddb7a7621b4a919360b4775d93a5ef' && Number(pillar.
                 let obs = getObligations(projetoId, pillar.num);
                 if (Number(pillar.num) === 7) {
                   // Pilar 7 top section already shows NFTs + Token via projectAssets
-                  // Only show remaining obligation slots (Auditoria Smartcontract etc.) that aren't in projectAssets
-                  const alreadyShown = ['Certificado do Crédito', 'Certificado de PSA R$100', 'Certificado de PSA R$500', 'Certificado de PSA R$1.000', 'Certificado de PSA R$10.000', 'Certificado do Crédito (BF Terra I)', 'Certificado do Crédito (BF Terra II)', 'Certificado de Crédito de Carbono NFT', 'Contrato Inteligente no Polygonscan', 'Utility Token', 'Consulta Pública', 'Consulta Pública (BF Terra I)', 'Consulta Pública (BF Terra II)'];
+                  // Only show remaining obligation slots (Consulta Pública, Auditoria Smartcontract etc.) that aren't in projectAssets
+                  const alreadyShown = ['Certificado do Crédito', 'Certificado de PSA R$100', 'Certificado de PSA R$500', 'Certificado de PSA R$1.000', 'Certificado de PSA R$10.000', 'Certificado do Crédito (BF Terra I)', 'Certificado do Crédito (BF Terra II)', 'Certificado de Crédito de Carbono NFT', 'Contrato Inteligente no Polygonscan', 'Utility Token'];
                   obs = obs.filter(o => !alreadyShown.some(s => o.nome.includes(s)));
                   realDocs = realDocs.filter(e => !alreadyShown.some(s => e.name.includes(s)));
                 }
@@ -473,13 +473,18 @@ if (projetoId === '0xc88d4860d4ddb7a7621b4a919360b4775d93a5ef' && Number(pillar.
                   
                   if (real) {
                     matchedReals.add(real);
+                    const urlVal = real.linkUrl || real.fileUrl || real.url || real.link || slot.defaultUrl;
+                    let sLinks = real.socialLinks;
+                    if (!sLinks && real.type === 'Redes Sociais' && urlVal) {
+                      sLinks = typeof urlVal === 'string' ? urlVal.split(',').map(s=>s.trim()) : [urlVal];
+                    }
                     return {
                       label: real.type || slot.label,
                       title: real.name || slot.defaultTitle,
                       desc: real.desc || real.source || slot.defaultDesc,
                       date: real.date || slot.defaultDate,
-                      url: real.linkUrl || real.fileUrl || real.url || real.link || slot.defaultUrl,
-                      socialLinks: real.socialLinks,
+                      url: urlVal,
+                      socialLinks: sLinks,
                       ready: real.status === 'Validada' || real.status === 'Em Análise' || !!real.name,
                       status: real.status,
                     };
