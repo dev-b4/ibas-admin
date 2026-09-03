@@ -66,7 +66,7 @@ export default function AdminPanel() {
       const evs = JSON.parse(localStorage.getItem('b4_evidences_local') || '[]');
       if (evs.length > 0) {
         // filter out defaults or maybe just push all?
-        const toPush = evs.filter(e => !e.id.startsWith('def_'));
+        const toPush = evs.filter(e => !(e.id && typeof e.id === 'string' && e.id.startsWith('def_')));
         for (const e of toPush) {
           const dbEv = {
             id: e.id, projeto_id: e.projetoId, pilar_num: e.pilarNum, name: e.name, type: e.type, source: e.source, status: e.status, link_url: e.linkUrl || e.link_url, file_url: e.fileUrl || e.file_url, date: e.date, validated_by: e.user
