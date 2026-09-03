@@ -620,17 +620,28 @@ function AnimatedRoutes() {
   const location = useLocation();
   return (
     <AnimatePresence mode="wait">
+      
+      {/* Logic to separate Admin and Public apps based on Env Variable */}
       <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-20}} transition={{duration:0.3}}><PublicLayout><Dashboard /></PublicLayout></motion.div>} />
-        <Route path="/projeto/:id" element={<motion.div initial={{opacity:0, x:50}} animate={{opacity:1, x:0}} exit={{opacity:0, x:-50}} transition={{duration:0.3}}><PublicLayout><ProjectDetails /></PublicLayout></motion.div>} />
-        <Route path="/register" element={<Register />} />
-        
-        <Route path="/login" element={<Login />} />
-        <Route path="/setup-totp" element={<AuthGuard><SetupTOTP /></AuthGuard>} />
-        <Route path="/verify-totp" element={<AuthGuard><VerifyTOTP /></AuthGuard>} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/admin" element={<motion.div initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} exit={{opacity:0, scale:1.05}} transition={{duration:0.3}}><AdminAuthWrapper><AdminPanel /></AdminAuthWrapper></motion.div>} />
+        {import.meta.env.VITE_APP_MODE === 'admin' ? (
+          <>
+            <Route path="/" element={<Navigate to="/admin" replace />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/setup-totp" element={<AuthGuard><SetupTOTP /></AuthGuard>} />
+            <Route path="/verify-totp" element={<AuthGuard><VerifyTOTP /></AuthGuard>} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/admin" element={<motion.div initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} exit={{opacity:0, scale:1.05}} transition={{duration:0.3}}><AdminAuthWrapper><AdminPanel /></AdminAuthWrapper></motion.div>} />
+            <Route path="*" element={<Navigate to="/admin" replace />} />
+          </>
+        ) : (
+          <>
+            <Route path="/" element={<motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-20}} transition={{duration:0.3}}><PublicLayout><Dashboard /></PublicLayout></motion.div>} />
+            <Route path="/projeto/:id" element={<motion.div initial={{opacity:0, x:50}} animate={{opacity:1, x:0}} exit={{opacity:0, x:-50}} transition={{duration:0.3}}><PublicLayout><ProjectDetails /></PublicLayout></motion.div>} />
+            <Route path="/register" element={<Register />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </>
+        )}
       </Routes>
     </AnimatePresence>
   );
