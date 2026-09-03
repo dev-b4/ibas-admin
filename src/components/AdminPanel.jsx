@@ -13,7 +13,7 @@ import {
   BarChart3, FolderGit2, Users, FileText, ChevronLeft, ChevronRight, Search, Menu, X,
   Filter, Download, Plus, ShieldCheck, ShieldAlert, CheckCircle, 
   ExternalLink, Info, Globe, AlertCircle, Shield, User, CloudUpload, Leaf, Link as LinkIcon, Eye, Trash2, Pencil, Lock, Activity, LogOut
-} from 'lucide-react';
+, DownloadCloud} from 'lucide-react';
 
 export default function AdminPanel() {
   const currentUser = JSON.parse(sessionStorage.getItem('b4_user') || '{}');
@@ -370,7 +370,7 @@ export default function AdminPanel() {
         {/* Top Header */}
         <div className="bg-white border-b border-slate-200 px-4 md:px-8 py-3 md:py-4 shrink-0 text-slate-900 flex justify-between items-center">
           {migrationStatus && <div className="ml-4 text-xs font-bold text-amber-600 bg-amber-100 px-3 py-1 rounded-full">{migrationStatus}</div>}
-          {localStorage.getItem('b4_custom_projects') && !migrationStatus && (
+          {!migrationStatus && (
             <button onClick={handleMigrateToSupabase} className="ml-4 text-xs font-bold text-white bg-green-500 hover:bg-green-600 px-3 py-1.5 rounded-full shadow-sm transition-all flex items-center gap-1">
               <DownloadCloud size={14} /> Salvar meu progresso local na nuvem
             </button>
