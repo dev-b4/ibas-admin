@@ -516,7 +516,7 @@ export default function Dashboard() {
                           </td>
                           <td className="py-2.5 px-4">
                             <div className="flex flex-col gap-1">
-                              <span className="font-bold text-slate-800 text-xs">{((ativo.peso || 0) * 100).toFixed(1)}%</span>
+                              <span className="font-bold text-slate-800 text-xs">{((ativo.peso || 0) * 100).toFixed(2)}%</span>
                               <div className="w-12 h-1 bg-slate-100 rounded-full overflow-hidden">
                                 <motion.div 
                                   initial={{ width: 0 }}
@@ -610,7 +610,7 @@ export default function Dashboard() {
                       </div>
                       <div className="bg-slate-50 border border-slate-100 rounded-2xl p-3 relative overflow-hidden hover:border-purple-200 transition-colors">
                         <p className="text-[10px] font-semibold text-slate-500 mb-0.5">{t('dashboard.weightIbas')}</p>
-                        <p className="text-xl font-black text-[#150B2D]">{((selectedAsset.peso || 0) * 100).toFixed(1)}%</p>
+                        <p className="text-xl font-black text-[#150B2D]">{((selectedAsset.peso || 0) * 100).toFixed(2)}%</p>
                       </div>
                       <div className="bg-slate-50 border border-slate-100 rounded-2xl p-3 hover:border-emerald-200 transition-colors">
                         <p className="text-[10px] font-semibold text-slate-500 mb-0.5">{t('dashboard.impact')} (pts)</p>

@@ -202,7 +202,7 @@ export default function ProjectDetails() {
                   <span className="text-2xl md:text-3xl font-black text-[#150B2D]">{(projeto.impacto || 0).toFixed(2).replace('.', ',')}</span>
                   <span className="text-sm md:text-lg font-bold text-slate-400">pts</span>
                 </div>
-                <p className="text-slate-500 text-xs font-medium mt-3">{((projeto.peso || 0)*100).toFixed(1)}% {t('projectDetails.weightIndex')}</p>
+                <p className="text-slate-500 text-xs font-medium mt-3">{((projeto.peso || 0)*100).toFixed(2)}% {t('projectDetails.weightIndex')}</p>
               </div>
               
               <div className="col-span-2 md:col-span-1">
