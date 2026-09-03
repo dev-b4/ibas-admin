@@ -73,7 +73,7 @@ export const fetchIbasData = async () => {
       moedaBase: { ticker: 'B4TRII', descricao: 'Pareada ao Dólar' },
       ptax: realPtax, 
       fatorNormalizacao: 1.67,
-      ativos: getFallbackAssets(),
+      ativos: [],
       history: registerDailyIbasIndex(100)
     };
   }
@@ -111,14 +111,21 @@ export const fetchIbasData = async () => {
   });
 
   const ibasIndex = validAssets.reduce((acc, curr) => acc + curr.impacto, 0);
-  const hist = await getIbasHistory();
+  let hist = await getIbasHistory();
+  if (hist.length > 0) {
+    const today = new Date().toLocaleDateString('pt-BR');
+    const todayIndex = hist.findIndex(h => h.date === today);
+    if (todayIndex >= 0) { hist[todayIndex].close = ibasIndex; } else { hist.push({ date: today, close: ibasIndex, max: ibasIndex, min: ibasIndex }); }
+    const ymdDate = new Date().toISOString().split('T')[0];
+    supabase.from('ibas_history').upsert({ date: ymdDate, value: ibasIndex }, { onConflict: 'date' }).then(() => {});
+  }
   
   return {
     moedaBase: { ticker: 'B4TRII', descricao: 'Pareada ao Dólar' },
     ptax: realPtax, 
     fatorNormalizacao: 1.67,
     ativos: validAssets,
-    history: registerDailyIbasIndex(ibasIndex),
+    history: hist && hist.length > 0 ? hist : registerDailyIbasIndex(ibasIndex),
     metrics: {
       marketCap: 45000000000,
       volume24h: 1200000,

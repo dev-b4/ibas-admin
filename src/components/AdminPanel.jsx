@@ -29,6 +29,64 @@ export default function AdminPanel() {
   const [activeView, setActiveView] = useState('projetos');
   const [pilarSelecionado, setPilarSelecionado] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  
+  const [migrationStatus, setMigrationStatus] = useState('');
+  
+  const handleMigrateToSupabase = async () => {
+    try {
+      setMigrationStatus('Migrando projetos...');
+      const projs = JSON.parse(localStorage.getItem('b4_custom_projects') || '[]');
+      if (projs.length > 0) {
+        for (const p of projs) {
+          const dbProj = {
+            id: p.id,
+            nome: p.nome || p.displayName,
+            categoria: p.categoria || p.nicho,
+            status: p.status || 'Em Avaliação',
+            score: p.score || 0,
+            peso: p.peso || 0,
+            volume: p.volume || '-',
+            metodologia: p.metodologia || '',
+            verificacao: p.verificacao || '',
+            localizacao: p.localizacao || '',
+            originador: p.originador || '',
+            data_listagem: p.dataListagem || new Date().toLocaleDateString('pt-BR'),
+            logo_url: p.photo || null,
+            links: { polygonscan: p.polygonscan || '' }
+          };
+          await fetch('https://bbiyykzmgagbpcgafzax.supabase.co/rest/v1/projects', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + import.meta.env.VITE_SUPABASE_ANON_KEY, 'Prefer': 'resolution=merge-duplicates' },
+            body: JSON.stringify(dbProj)
+          });
+        }
+      }
+
+      setMigrationStatus('Migrando evidências...');
+      const evs = JSON.parse(localStorage.getItem('b4_evidences_local') || '[]');
+      if (evs.length > 0) {
+        // filter out defaults or maybe just push all?
+        const toPush = evs.filter(e => !e.id.startsWith('def_'));
+        for (const e of toPush) {
+          const dbEv = {
+            id: e.id, projeto_id: e.projetoId, pilar_num: e.pilarNum, name: e.name, type: e.type, source: e.source, status: e.status, link_url: e.linkUrl || e.link_url, file_url: e.fileUrl || e.file_url, date: e.date, validated_by: e.user
+          };
+          await fetch('https://bbiyykzmgagbpcgafzax.supabase.co/rest/v1/evidences', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + import.meta.env.VITE_SUPABASE_ANON_KEY, 'Prefer': 'resolution=merge-duplicates' },
+            body: JSON.stringify(dbEv)
+          });
+        }
+      }
+
+      setMigrationStatus('Migração concluída! Os dados estão no Vercel.');
+      setTimeout(() => window.location.reload(), 2000);
+    } catch(e) {
+      console.error(e);
+      setMigrationStatus('Erro na migração: ' + e.message);
+    }
+  };
+
   const [isAddEvidenceModalOpen, setIsAddEvidenceModalOpen] = useState(false);
   const [evidenciasLocal, setEvidenciasLocal] = useState(() => {
     const saved = localStorage.getItem('b4_evidences_local');
