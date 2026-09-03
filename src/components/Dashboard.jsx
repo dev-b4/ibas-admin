@@ -213,7 +213,7 @@ export default function Dashboard() {
     switch (timeFilter) {
       case '1D': 
         // Cria uma linha reta intraday com o valor atual para desenhar o gráfico {t('dashboard.of')} 1D
-        const todayPts = history[history.length - 1].close;
+        const todayPts = history.length > 0 ? history[history.length - 1].close : 0;
         return [
           { time: '08:00', pts: todayPts },
           { time: '12:00', pts: todayPts },

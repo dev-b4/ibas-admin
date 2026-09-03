@@ -73,7 +73,8 @@ export const fetchIbasData = async () => {
       moedaBase: { ticker: 'B4TRII', descricao: 'Pareada ao Dólar' },
       ptax: realPtax, 
       fatorNormalizacao: 1.67,
-      ativos: getFallbackAssets()
+      ativos: getFallbackAssets(),
+      history: registerDailyIbasIndex(100)
     };
   }
 
