@@ -138,7 +138,7 @@ export const fetchIbasData = async () => {
 export const mockEvidences = [];
 
 
-export const generateAcreditationScore = (baseScore, assetId) => {
+export function generateAcreditationScore(baseScore, assetId) {
   let p1 = calculatePilarScore(assetId, 1, 100);
   let p2 = calculatePilarScore(assetId, 2, 100);
   let p3 = calculatePilarScore(assetId, 3, 100);
@@ -183,7 +183,7 @@ export const generateAcreditationScore = (baseScore, assetId) => {
   };
 };
 
-export const getEvidences = () => {
+export function getEvidences() {
   if (globalEvidencesCache && globalEvidencesCache.length > 0) {
     return globalEvidencesCache;
   }
@@ -200,7 +200,7 @@ export const getEvidences = () => {
 };
 
 
-export const calculatePilarScore = (projetoId, pNum, maxScore = 100) => {
+export function calculatePilarScore(projetoId, pNum, maxScore = 100) {
   try {
     const evidencias = getEvidences();
     const pilarEvs = evidencias.filter(e => e.projetoId === projetoId && e.pilarNum === pNum && e.status === 'Validada');
@@ -469,7 +469,7 @@ export const registerDailyIbasIndex = (currentScore) => {
   return history;
 };
 
-const getFallbackAssets = () => {
+function getFallbackAssets() {
   return [
     {
       id: '0xc88d4860d4ddb7a7621b4a919360b4775d93a5ef',
