@@ -30,68 +30,7 @@ export default function AdminPanel() {
   const [pilarSelecionado, setPilarSelecionado] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   
-  const [migrationStatus, setMigrationStatus] = useState('');
   
-  const handleMigrateToSupabase = async () => {
-    try {
-      setMigrationStatus('Migrando projetos...');
-      const projs = JSON.parse(localStorage.getItem('b4_custom_projects') || '[]');
-      if (projs.length > 0) {
-        for (const p of projs) {
-          const dbProj = {
-            id: p.id,
-            nome: p.nome || p.displayName,
-            categoria: p.categoria || p.nicho,
-            status: p.status || 'Em Avaliação',
-            score: p.score || 0,
-            peso: p.peso || 0,
-            volume: p.volume || '-',
-            metodologia: p.metodologia || '',
-            verificacao: p.verificacao || '',
-            localizacao: p.localizacao || '',
-            originador: p.originador || '',
-            data_listagem: p.dataListagem || new Date().toLocaleDateString('pt-BR'),
-            logo_url: p.photo || null,
-            links: { polygonscan: p.polygonscan || '' }
-          };
-          const r1 = await fetch('https://bbiyykzmgagbpcgafzax.supabase.co/rest/v1/projects', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJiaXl5a3ptZ2FnYnBjZ2FmemF4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4ODQzOTYyMCwiZXhwIjoyMTA0MDE1NjIwfQ.FDSiCUJ2k1uzH--6dbsI3qEJ1m0U3PMJJBBwVXV3uKA', 'Authorization': 'Bearer ' + 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJiaXl5a3ptZ2FnYnBjZ2FmemF4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4ODQzOTYyMCwiZXhwIjoyMTA0MDE1NjIwfQ.FDSiCUJ2k1uzH--6dbsI3qEJ1m0U3PMJJBBwVXV3uKA', 'Prefer': 'resolution=merge-duplicates' },
-            body: JSON.stringify(dbProj)
-          }); if(!r1.ok) throw new Error(await r1.text());
-        }
-      }
-
-      setMigrationStatus('Migrando evidências...');
-      const evs = JSON.parse(localStorage.getItem('b4_evidences_local') || '[]');
-      if (evs.length > 0) {
-        // filter out defaults or maybe just push all?
-        
-        const idMap = {
-          '0xfe7dee81b1a416068a5ce01f3489bd5c9996ae62': '0x56cb7b3b1b4a57e8d5e3bf3b72e9f1d29c7a1234',
-          '0xc84fc3cdc3c6d0713ecc6008e50efcffc9b14b3b': '0xa1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0'
-        };
-
-        const toPush = evs.filter(e => !(e.id && typeof e.id === 'string' && e.id.startsWith('def_')));
-        for (const e of toPush) {
-          const dbEv = {
-            id: e.id, projeto_id: idMap[e.projetoId] || e.projetoId, pilar_num: e.pilarNum, name: e.name, type: e.type, source: e.source, status: e.status, link_url: e.linkUrl || e.link_url, file_url: e.fileUrl || e.file_url, date: e.date, validated_by: e.user
-          };
-          const r2 = await fetch('https://bbiyykzmgagbpcgafzax.supabase.co/rest/v1/evidences', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJiaXl5a3ptZ2FnYnBjZ2FmemF4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4ODQzOTYyMCwiZXhwIjoyMTA0MDE1NjIwfQ.FDSiCUJ2k1uzH--6dbsI3qEJ1m0U3PMJJBBwVXV3uKA', 'Authorization': 'Bearer ' + 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJiaXl5a3ptZ2FnYnBjZ2FmemF4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4ODQzOTYyMCwiZXhwIjoyMTA0MDE1NjIwfQ.FDSiCUJ2k1uzH--6dbsI3qEJ1m0U3PMJJBBwVXV3uKA', 'Prefer': 'resolution=merge-duplicates' },
-            body: JSON.stringify(dbEv)
-          }); if(!r2.ok) throw new Error(await r2.text());
-        }
-      }
-
-      setMigrationStatus('Migração concluída! Os dados estão no Vercel.');
-      setTimeout(() => window.location.reload(), 2000);
-    } catch(e) {
-      console.error(e);
-      setMigrationStatus('Erro na migração: ' + e.message);
-    }
-  };
 
   const [isAddEvidenceModalOpen, setIsAddEvidenceModalOpen] = useState(false);
   const [evidenciasLocal, setEvidenciasLocal] = useState(() => {
@@ -375,12 +314,7 @@ export default function AdminPanel() {
 
         {/* Top Header */}
         <div className="bg-white border-b border-slate-200 px-4 md:px-8 py-3 md:py-4 shrink-0 text-slate-900 flex justify-between items-center">
-          {migrationStatus && <div className="ml-4 text-xs font-bold text-amber-600 bg-amber-100 px-3 py-1 rounded-full">{migrationStatus}</div>}
-          {!migrationStatus && (
-            <button onClick={handleMigrateToSupabase} className="ml-4 text-xs font-bold text-white bg-green-500 hover:bg-green-600 px-3 py-1.5 rounded-full shadow-sm transition-all flex items-center gap-1">
-              <DownloadCloud size={14} /> Salvar meu progresso local na nuvem
-            </button>
-          )}
+          
 
           <div className="flex items-center justify-between gap-4">
             {/* Mobile hamburger */}
