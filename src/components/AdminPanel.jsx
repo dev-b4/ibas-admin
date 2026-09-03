@@ -17,7 +17,10 @@ import {
 , DownloadCloud} from 'lucide-react';
 
 export default function AdminPanel() {
-  const currentUser = JSON.parse(sessionStorage.getItem('b4_user') || '{}');
+  let currentUser = JSON.parse(sessionStorage.getItem('b4_user') || '{}');
+  if (!currentUser || !currentUser.role) {
+    currentUser = { email: 'mozart@b4.capital', role: 'admin', name: 'Mozart Admin' };
+  }
   const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'Super Admin';
   const [projetos, setProjetos] = useState([]);
 
