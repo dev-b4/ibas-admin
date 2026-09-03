@@ -54,11 +54,11 @@ export default function AdminPanel() {
             logo_url: p.photo || null,
             links: { polygonscan: p.polygonscan || '' }
           };
-          await fetch('https://bbiyykzmgagbpcgafzax.supabase.co/rest/v1/projects', {
+          const r1 = await fetch('https://bbiyykzmgagbpcgafzax.supabase.co/rest/v1/projects', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + import.meta.env.VITE_SUPABASE_ANON_KEY, 'Prefer': 'resolution=merge-duplicates' },
+            headers: { 'Content-Type': 'application/json', 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJiaXl5a3ptZ2FnYnBjZ2FmemF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0Mzk2MjAsImV4cCI6MjEwNDAxNTYyMH0.tJlzpt2GxiYL2FsY0fRPJPnrvdd0A8nulzwQTdkh3Yg', 'Authorization': 'Bearer ' + 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJiaXl5a3ptZ2FnYnBjZ2FmemF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0Mzk2MjAsImV4cCI6MjEwNDAxNTYyMH0.tJlzpt2GxiYL2FsY0fRPJPnrvdd0A8nulzwQTdkh3Yg', 'Prefer': 'resolution=merge-duplicates' },
             body: JSON.stringify(dbProj)
-          });
+          }); if(!r1.ok) throw new Error(await r1.text());
         }
       }
 
@@ -71,11 +71,11 @@ export default function AdminPanel() {
           const dbEv = {
             id: e.id, projeto_id: e.projetoId, pilar_num: e.pilarNum, name: e.name, type: e.type, source: e.source, status: e.status, link_url: e.linkUrl || e.link_url, file_url: e.fileUrl || e.file_url, date: e.date, validated_by: e.user
           };
-          await fetch('https://bbiyykzmgagbpcgafzax.supabase.co/rest/v1/evidences', {
+          const r2 = await fetch('https://bbiyykzmgagbpcgafzax.supabase.co/rest/v1/evidences', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + import.meta.env.VITE_SUPABASE_ANON_KEY, 'Prefer': 'resolution=merge-duplicates' },
+            headers: { 'Content-Type': 'application/json', 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJiaXl5a3ptZ2FnYnBjZ2FmemF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0Mzk2MjAsImV4cCI6MjEwNDAxNTYyMH0.tJlzpt2GxiYL2FsY0fRPJPnrvdd0A8nulzwQTdkh3Yg', 'Authorization': 'Bearer ' + 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJiaXl5a3ptZ2FnYnBjZ2FmemF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0Mzk2MjAsImV4cCI6MjEwNDAxNTYyMH0.tJlzpt2GxiYL2FsY0fRPJPnrvdd0A8nulzwQTdkh3Yg', 'Prefer': 'resolution=merge-duplicates' },
             body: JSON.stringify(dbEv)
-          });
+          }); if(!r2.ok) throw new Error(await r2.text());
         }
       }
 
