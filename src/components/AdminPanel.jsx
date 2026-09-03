@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { fetchIbasData, mockEvidences, getEvidences, calculatePilarScore, getObligations, saveObligations, logAction, getActionLogs, getSystemUsers, saveSystemUsers, defaultPilarObligations } from '../api/mockData';
+import { fetchIbasData, mockEvidences, getEvidences, calculatePilarScore, getObligations, saveObligations, logAction, getActionLogs, getSystemUsers, saveSystemUsers, defaultPilarObligations, addEvidenceToCache, updateEvidenceInCache, removeEvidenceFromCache, generateAcreditationScore } from '../api/mockData';
 import AddProjectModal from './AddProjectModal';
 import AddEvidenceModal from './AddEvidenceModal';
 import EvidenceDetailsModal from './EvidenceDetailsModal';
