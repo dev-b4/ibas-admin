@@ -24,7 +24,7 @@ export default function ResetPassword() {
         if (assuranceLevel?.nextLevel === 'aal2' && assuranceLevel?.currentLevel === 'aal1') {
           setNeedsMFA(true);
           const { data: factors } = await supabase.auth.mfa.listFactors();
-          const totp = factors?.totp?.[0] || factors?.all?.find(f => f.factor_type === 'totp');
+          const totp = factors?.totp?.[0] || factors?.all?.find(f => f.factor_type === 'totp' && f.status === 'verified');
           if (totp) setFactorId(totp.id);
         }
       } catch (err) {
@@ -68,7 +68,16 @@ export default function ResetPassword() {
 
       const { error: updateError } = await supabase.auth.updateUser({ password });
       
-      if (updateError) throw updateError;
+      if (updateError) {
+        if (updateError.message.includes('AAL2') || updateError.message.includes('MFA')) {
+          setNeedsMFA(true);
+          const { data: factors } = await supabase.auth.mfa.listFactors();
+          const totp = factors?.totp?.[0] || factors?.all?.find(f => f.factor_type === 'totp' && f.status === 'verified');
+          if (totp) setFactorId(totp.id);
+          throw new Error('Código Authy necessário. Por favor, digite o código de 6 dígitos que apareceu abaixo.');
+        }
+        throw updateError;
+      }
       
       setSuccess(true);
       await supabase.auth.signOut();
