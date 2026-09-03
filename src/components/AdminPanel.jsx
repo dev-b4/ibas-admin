@@ -151,6 +151,11 @@ export default function AdminPanel() {
   ];
 
   const handleSaveEvidence = (newEv) => {
+    // se for redes sociais, agrupar links separados por vírgula em linkUrl
+    if (newEv.type === 'Redes Sociais' && Array.isArray(newEv.socialLinks)) {
+      newEv.linkUrl = newEv.socialLinks.filter(l => l.trim() !== '').join(', ');
+    }
+
     if (editingEvidence) {
       const updatedEv = {
         ...editingEvidence,
@@ -590,7 +595,15 @@ export default function AdminPanel() {
                               </td>
                               <td className="p-4">
                                 <div className="flex items-center justify-end gap-2">
-                                  {(isAdmin || ev.user?.includes(currentUser.email)) && (<button onClick={(e) => { e.stopPropagation(); setEditingEvidence(ev); setIsAddEvidenceModalOpen(true); }} className="text-slate-400 hover:text-blue-600 bg-slate-100 hover:bg-blue-50 p-1.5 rounded transition-colors" title="Editar">
+                                  {(isAdmin || ev.user?.includes(currentUser.email)) && (<button onClick={(e) => { 
+                                    e.stopPropagation(); 
+                                    const editEv = {...ev};
+                                    if (editEv.type === 'Redes Sociais' && editEv.linkUrl) {
+                                      editEv.socialLinks = typeof editEv.linkUrl === 'string' ? editEv.linkUrl.split(',').map(s=>s.trim()) : [editEv.linkUrl];
+                                    }
+                                    setEditingEvidence(editEv); 
+                                    setIsAddEvidenceModalOpen(true); 
+                                  }} className="text-slate-400 hover:text-blue-600 bg-slate-100 hover:bg-blue-50 p-1.5 rounded transition-colors" title="Editar">
                                     <Pencil size={14} />
                                   </button>)}
                                   <button onClick={(e) => { e.stopPropagation(); setSelectedEvidence(ev); setIsEvidenceDetailsOpen(true); }} className="text-slate-400 hover:text-purple-600 bg-slate-100 hover:bg-purple-50 p-1.5 rounded transition-colors" title="Ver detalhes">
