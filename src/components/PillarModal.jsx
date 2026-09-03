@@ -439,9 +439,13 @@ if (projetoId === '0xc88d4860d4ddb7a7621b4a919360b4775d93a5ef' && Number(pillar.
                 // Dynamic slots based on Obligations
                 let obs = getObligations(projetoId, pillar.num);
                 if (Number(pillar.num) === 7) {
-                  obs = obs.filter(o => !o.nome.includes('Certificado do Crédito') && !o.nome.includes('Certificado de PSA') && !o.nome.includes('Utility Token'));
-                  realDocs = realDocs.filter(e => !e.name.includes('Certificado do Crédito') && !e.name.includes('Certificado de PSA') && !e.name.includes('Utility Token'));
+                  // Pilar 7 top section already shows NFTs + Token via projectAssets
+                  // Only show remaining obligation slots (Auditoria Smartcontract etc.) that aren't in projectAssets
+                  const alreadyShown = ['Certificado do Crédito', 'Certificado de PSA R$100', 'Certificado de PSA R$500', 'Certificado de PSA R$1.000', 'Certificado de PSA R$10.000', 'Certificado do Crédito (BF Terra I)', 'Certificado do Crédito (BF Terra II)', 'Certificado de Crédito de Carbono NFT', 'Contrato Inteligente no Polygonscan', 'Utility Token', 'Consulta Pública', 'Consulta Pública (BF Terra I)', 'Consulta Pública (BF Terra II)'];
+                  obs = obs.filter(o => !alreadyShown.some(s => o.nome.includes(s)));
+                  realDocs = realDocs.filter(e => !alreadyShown.some(s => e.name.includes(s)));
                 }
+
                 const slots = [];
                 const limit = obs.length;
                 for (let i = 0; i < limit; i++) {

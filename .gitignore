@@ -36,5 +36,6 @@ dist-ssr
 package-lock.json
 
 # Large assets - serve via CDN/Supabase Storage in production
-public/assets/
+# public/assets/  ← removed: images are small enough to commit
+
 public/*.jpg
