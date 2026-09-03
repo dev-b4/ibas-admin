@@ -84,8 +84,8 @@ export default function SetupTOTP() {
             <h3 className="font-medium text-white mb-2">Passo 1: Instalar aplicativo</h3>
             <p className="text-sm text-slate-400 mb-3">Baixe o Google Authenticator ou Authy na loja de aplicativos do seu celular.</p>
             <div className="flex gap-3">
-              <a href="#" className="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded transition-colors">App Store</a>
-              <a href="#" className="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded transition-colors">Play Store</a>
+              <a href="https://apps.apple.com/br/app/authy/id494168017" target="_blank" rel="noopener noreferrer" className="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded transition-colors">App Store</a>
+              <a href="https://play.google.com/store/apps/details?id=com.authy.authy" target="_blank" rel="noopener noreferrer" className="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded transition-colors">Play Store</a>
             </div>
           </div>
 
