@@ -154,7 +154,11 @@ export function generateAcreditationScore(baseScore, assetId) {
   
   let total = p1 + p2 + p3 + p4 + p5 + p6 + p7 + p8 + p9 + p10 + p11;
   const saved = localStorage.getItem('b4_evidences_local');
-  if ((!saved || saved === "undefined" || JSON.parse(saved).length === 0) && assetId === '0xc88d4860d4ddb7a7621b4a919360b4775d93a5ef') {
+  let isEmpty = !saved || saved === "undefined";
+  if (!isEmpty) {
+    try { isEmpty = JSON.parse(saved).length === 0; } catch(e) { isEmpty = true; }
+  }
+  if (isEmpty && assetId === '0xc88d4860d4ddb7a7621b4a919360b4775d93a5ef') {
     total = 117; // Force 117 points for BF Terra by default so V2 matches localhost mockup
   }
   
@@ -343,7 +347,10 @@ export const defaultPilarObligations = {
 
 export const getObligations = (projetoId, pilarNum) => {
   const saved = localStorage.getItem('b4_obligations_v2');
-  let allObs = saved ? JSON.parse(saved) : {};
+  let allObs = {};
+  if (saved && saved !== "undefined") {
+    try { allObs = JSON.parse(saved); } catch(e) {}
+  }
   const key = `${projetoId}_${pilarNum}`;
   
   if (allObs[key] && allObs[key].length > 0 && !(Number(pilarNum) === 7 && projetoId === '0xc88d4860d4ddb7a7621b4a919360b4775d93a5ef') && !(Number(pilarNum) === 7 && projetoId === '0x7466eb42b5b165d8b133a7040870b2da6c060546')) {
@@ -382,7 +389,10 @@ export const getObligations = (projetoId, pilarNum) => {
 
 export const saveObligations = (projetoId, pilarNum, obligationsArray) => {
   const saved = localStorage.getItem('b4_obligations_v2');
-  let allObs = saved ? JSON.parse(saved) : {};
+  let allObs = {};
+  if (saved && saved !== "undefined") {
+    try { allObs = JSON.parse(saved); } catch(e) {}
+  }
   const key = `${projetoId}_${pilarNum}`;
   allObs[key] = obligationsArray;
   localStorage.setItem('b4_obligations_v2', JSON.stringify(allObs));
@@ -393,7 +403,9 @@ export const saveObligations = (projetoId, pilarNum, obligationsArray) => {
 
 export const getSystemUsers = () => {
   const saved = localStorage.getItem('b4_users');
-  if (saved) return JSON.parse(saved);
+  if (saved) {
+    try { return JSON.parse(saved); } catch(e) {}
+  }
   
   const defaultUsers = [
     { id: 1, name: 'Mozart F. Silva', email: 'compliance@b4.capital', cpf: '000.***.***-00', phone: '+55 11 98888-7777', role: 'Super Admin', status: 'Verificado', kycDate: '15/08/2025', allowedPillars: [1,2,3,4,5,6,7,8,9,10,11], projects: ['0xc88d4860d4ddb7a7621b4a919360b4775d93a5ef', '0x90192d63e476b7ce061c0dbbad10fde95c5e1514', '0x1712a20b0806085a676a6a096c78fbde710e254f', '0xe254f85a676a6a096c78fbd1712a20b0806085a6'] },
@@ -411,8 +423,10 @@ export const getActionLogs = () => {
   const saved = localStorage.getItem('b4_action_logs');
   
   if (saved && saved !== "undefined") {
-    const p = JSON.parse(saved);
-    if (p.length > 0) return p;
+    try {
+      const p = JSON.parse(saved);
+      if (p.length > 0) return p;
+    } catch(e) {}
   }
   const todayStr = new Date().toLocaleDateString('pt-BR');
   return [
@@ -451,7 +465,10 @@ export const getIbasHistory = async () => {
   }
   // Fallback se estiver vazio
   const saved = localStorage.getItem('b4_ibas_history');
-  return saved ? JSON.parse(saved) : [];
+  if (saved && saved !== "undefined") {
+    try { return JSON.parse(saved); } catch(e) {}
+  }
+  return [];
 };
 
 export const registerDailyIbasIndex = (currentScore) => {
