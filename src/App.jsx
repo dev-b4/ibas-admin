@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { LanguageProvider } from "./context/LanguageContext";
-import { HashRouter as Router, Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Link, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { AnimatePresence, motion } from "framer-motion";
 import Dashboard from './components/Dashboard';
 import AdminPanel from './components/AdminPanel';
