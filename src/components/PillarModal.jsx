@@ -1,6 +1,6 @@
 import React from 'react';
 import { X, ExternalLink, Globe, Leaf, Users, DollarSign, Target, Activity, FileText, Info, Link as LinkIcon } from 'lucide-react';
-import { getObligations } from '../api/mockData';
+import { getObligations, getEvidences } from '../api/mockData';
 import { useState, useEffect } from 'react';
 import EvidencesLogModal from './EvidencesLogModal';
 import { useLanguage } from "../context/LanguageContext";
@@ -238,10 +238,7 @@ export default function PillarModal({ pillar, projetoId, onClose }) {
   
   let evidenciasParaMostrar = [];
   try {
-    const saved = localStorage.getItem('b4_evidences_local');
-    if (saved && saved !== "undefined") {
-      evidenciasParaMostrar = JSON.parse(saved).filter(e => e.projetoId === projetoId && e.pilarNum === pillar.num && e.status === 'Validada');
-    }
+    evidenciasParaMostrar = getEvidences().filter(e => e.projetoId === projetoId && e.pilarNum === pillar.num && e.status === 'Validada');
   } catch(e) {}
 
   return (
@@ -421,13 +418,10 @@ export default function PillarModal({ pillar, projetoId, onClose }) {
             {(() => {
               const isBfPilar1 = projetoId === "0xc88d4860d4ddb7a7621b4a919360b4775d93a5ef" && pillar.num === 1;
                 
-                // Pull real docs from localStorage for this pillar
+                // Pull real docs from Supabase cache for this pillar
                 let realDocs = [];
                 try {
-                  const saved = localStorage.getItem('b4_evidences_local');
-                  if (saved && saved !== "undefined") {
-                    
-realDocs = JSON.parse(saved).filter(e => e.projetoId === projetoId && e.pilarNum === pillar.num);
+                  realDocs = getEvidences().filter(e => e.projetoId === projetoId && e.pilarNum === pillar.num);
 
 // FORCE REMOVE DUPLICATES/OLD NFTs FOR BF TERRA P7
 if (projetoId === '0xc88d4860d4ddb7a7621b4a919360b4775d93a5ef' && Number(pillar.num) === 7) {
@@ -440,7 +434,6 @@ if (projetoId === '0xc88d4860d4ddb7a7621b4a919360b4775d93a5ef' && Number(pillar.
   });
 }
 
-                  }
                 } catch(e) {}
 
                 // Dynamic slots based on Obligations

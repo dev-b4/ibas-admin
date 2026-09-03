@@ -33,21 +33,14 @@ export default function AdminPanel() {
   
 
   const [isAddEvidenceModalOpen, setIsAddEvidenceModalOpen] = useState(false);
-  const [evidenciasLocal, setEvidenciasLocal] = useState(() => {
-    const saved = localStorage.getItem('b4_evidences_local');
-    try {
-      return saved && saved !== "undefined" ? JSON.parse(saved) : getEvidences();
-    } catch(e) {
-      return getEvidences();
-    }
-  });
+  const [evidenciasLocal, setEvidenciasLocal] = useState(() => getEvidences());
 
   const setAndSaveEvidences = (newEvs) => {
     // If it's a function (like prev => ...), evaluate it first
     const evaluated = typeof newEvs === 'function' ? newEvs(evidenciasLocal) : newEvs;
-    localStorage.setItem('b4_evidences_local', JSON.stringify(evaluated));
     setEvidenciasLocal(evaluated);
   };
+
   const [activePilarTab, setActivePilarTab] = useState('Evidências');
   const [filterText, setFilterText] = useState('');
   const [showFilter, setShowFilter] = useState(false);
