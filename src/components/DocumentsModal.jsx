@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, FileText, ExternalLink, ShieldCheck, Clock } from 'lucide-react';
+import { X, FileText, ExternalLink, ShieldCheck, Clock, Globe } from 'lucide-react';
 import { getEvidences } from '../api/mockData';
 
 export default function DocumentsModal({ onClose, projeto, onOpenPillar }) {

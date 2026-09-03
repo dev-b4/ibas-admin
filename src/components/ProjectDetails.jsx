@@ -83,6 +83,7 @@ export default function ProjectDetails() {
   const [selectedPillar, setSelectedPillar] = useState(null);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     const loadData = async () => {
       const result = await fetchIbasData();
       setData(result);
