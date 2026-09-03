@@ -1,16 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle, AlertCircle } from 'lucide-react';
+import { CheckCircle, AlertCircle, Shield } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { supabase } from '../api/supabaseClient';
 
 export default function ResetPassword() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [mfaCode, setMfaCode] = useState('');
+  const [needsMFA, setNeedsMFA] = useState(false);
+  const [factorId, setFactorId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkMFA = async () => {
+      try {
+        const { data: { assuranceLevel }, error: mfaError } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+        if (mfaError) throw mfaError;
+
+        if (assuranceLevel?.nextLevel === 'aal2' && assuranceLevel?.currentLevel === 'aal1') {
+          setNeedsMFA(true);
+          const { data: factors } = await supabase.auth.mfa.listFactors();
+          const totp = factors?.totp?.[0] || factors?.all?.find(f => f.factor_type === 'totp');
+          if (totp) setFactorId(totp.id);
+        }
+      } catch (err) {
+        console.error('Erro ao verificar MFA', err);
+      }
+    };
+    checkMFA();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,11 +44,28 @@ export default function ResetPassword() {
       setError('A senha deve ter pelo menos 8 caracteres.');
       return;
     }
+    if (needsMFA && mfaCode.length < 6) {
+      setError('Digite o código de 6 dígitos do Authy.');
+      return;
+    }
     
     setError('');
     setLoading(true);
     
     try {
+      if (needsMFA && factorId) {
+        const challenge = await supabase.auth.mfa.challenge({ factorId });
+        if (challenge.error) throw challenge.error;
+        
+        const verify = await supabase.auth.mfa.verify({
+          factorId,
+          challengeId: challenge.data.id,
+          code: mfaCode
+        });
+        
+        if (verify.error) throw new Error('Código Authy inválido ou expirado.');
+      }
+
       const { error: updateError } = await supabase.auth.updateUser({ password });
       
       if (updateError) throw updateError;
@@ -36,7 +75,7 @@ export default function ResetPassword() {
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
       console.error(err);
-      setError(err.message);
+      setError(err.message === 'New password should be different from the old password.' ? 'A nova senha deve ser diferente da antiga.' : err.message);
     } finally {
       setLoading(false);
     }
@@ -103,6 +142,24 @@ export default function ResetPassword() {
                   required
                 />
               </div>
+
+              {needsMFA && (
+                <div className="pt-4 border-t border-slate-700/50">
+                  <label className="block text-sm font-medium text-amber-300 mb-2 flex items-center gap-2">
+                    <Shield size={16} /> Código Authy Obrigatório
+                  </label>
+                  <p className="text-xs text-slate-400 mb-3">Sua conta tem autenticação em dois fatores ativada. Digite o código para autorizar a troca de senha.</p>
+                  <input 
+                    type="text" 
+                    maxLength={6}
+                    value={mfaCode}
+                    onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, ''))}
+                    className="w-full px-4 py-3 bg-slate-800 border border-amber-700/30 rounded-lg focus:outline-none focus:border-amber-500 transition-colors text-center tracking-[0.5em] text-xl font-bold"
+                    placeholder="000000"
+                    required
+                  />
+                </div>
+              )}
 
               <button 
                 type="submit" 
