@@ -368,7 +368,14 @@ export default function AdminPanel() {
       <div className="flex-1 flex flex-col h-full overflow-hidden">
 
         {/* Top Header */}
-        <div className="bg-white border-b border-slate-200 px-4 md:px-8 py-3 md:py-4 shrink-0 text-slate-900">
+        <div className="bg-white border-b border-slate-200 px-4 md:px-8 py-3 md:py-4 shrink-0 text-slate-900 flex justify-between items-center">
+          {migrationStatus && <div className="ml-4 text-xs font-bold text-amber-600 bg-amber-100 px-3 py-1 rounded-full">{migrationStatus}</div>}
+          {localStorage.getItem('b4_custom_projects') && !migrationStatus && (
+            <button onClick={handleMigrateToSupabase} className="ml-4 text-xs font-bold text-white bg-green-500 hover:bg-green-600 px-3 py-1.5 rounded-full shadow-sm transition-all flex items-center gap-1">
+              <DownloadCloud size={14} /> Salvar meu progresso local na nuvem
+            </button>
+          )}
+
           <div className="flex items-center justify-between gap-4">
             {/* Mobile hamburger */}
             <button className="md:hidden text-slate-600 hover:text-purple-600 p-1" onClick={() => setSidebarOpen(true)}>
