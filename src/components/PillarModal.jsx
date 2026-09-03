@@ -152,6 +152,10 @@ const projectAssets = {
     }
   }
 };
+// Aliases: new Supabase IDs for Dowedi Mitir and Owie Bitioni point to the same data
+projectAssets['0x56cb7b3b1b4a57e8d5e3bf3b72e9f1d29c7a1234'] = projectAssets['0xfe7dee81b1a416068a5ce01f3489bd5c9996ae62'];
+projectAssets['0xa1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0'] = projectAssets['0xc84fc3cdc3c6d0713ecc6008e50efcffc9b14b3b'];
+
 
 export default function PillarModal({ pillar, projetoId, onClose }) {
   const { t, language } = useLanguage();
