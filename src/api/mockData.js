@@ -5,57 +5,6 @@ import defaultEvidences from './seed_evidences_full.json';
 let globalEvidencesCache = null;
 
 
-// --- AUTO-CLEANUP ROUTINE ---
-try {
-  const saved = localStorage.getItem('b4_evidences_local');
-  if (saved && saved !== 'undefined') {
-    let evs = JSON.parse(saved);
-    const originalLength = evs.length;
-    
-    // Remove specific old manual uploads for BF Terra Pilar 7
-    evs = evs.filter(e => {
-      if (e.projetoId === '0xc88d4860d4ddb7a7621b4a919360b4775d93a5ef' && e.Number(pilarNum) === 7) {
-        const nameToKill = e.name || '';
-        if (
-          nameToKill.includes('Acesso ao Crédito de Carbono BFTERRAIII') ||
-          nameToKill.includes('Certificado de Crédito de Carbono em formato NFT - BFTerra II') ||
-          nameToKill.includes('Certificado de Crédito de Carbono em formato NFT - BFTerra I')
-        ) {
-          return false; // Excluir!
-        }
-      }
-      return true;
-    });
-    
-    if (evs.length !== originalLength) {
-      localStorage.setItem('b4_evidences_local', JSON.stringify(evs));
-      console.log('Cleaned up old BF Terra evidences from localStorage');
-    }
-  }
-} catch(e) {}
-// ----------------------------
-
-// --- HARD RESET P7 BF TERRA ---
-try {
-  const saved = localStorage.getItem('b4_evidences_local');
-  if (saved && saved !== 'undefined') {
-    let evs = JSON.parse(saved);
-    const originalLength = evs.length;
-    
-    // Nuke ANY evidence for BF Terra Pilar 7 that isn't in a strict whitelist, or just nuke ALL of them and let them be re-seeded?
-    // Actually, let's just wipe ALL BF Terra Pilar 7 evidences from local storage, so they fall back to seed_evidences_full.json
-    evs = evs.filter(e => !(e.projetoId === '0xc88d4860d4ddb7a7621b4a919360b4775d93a5ef' && e.Number(pilarNum) === 7));
-    
-    if (evs.length !== originalLength) {
-      localStorage.setItem('b4_evidences_local', JSON.stringify(evs));
-      console.log('HARD RESET: Wiped all BF Terra Pilar 7 evidences from localStorage');
-    }
-  }
-} catch(e) {}
-// ----------------------------
-
-
-
 export const fetchIbasData = async () => {
   let realPtax = 5.1625;
   try {
@@ -180,14 +129,6 @@ export function generateAcreditationScore(baseScore, assetId) {
 
   
   let total = p1 + p2 + p3 + p4 + p5 + p6 + p7 + p8 + p9 + p10 + p11;
-  const saved = localStorage.getItem('b4_evidences_local');
-  let isEmpty = !saved || saved === "undefined";
-  if (!isEmpty) {
-    try { isEmpty = JSON.parse(saved).length === 0; } catch(e) { isEmpty = true; }
-  }
-  if (isEmpty && assetId === '0xc88d4860d4ddb7a7621b4a919360b4775d93a5ef') {
-    total = 117; // Force 117 points for BF Terra by default so V2 matches localhost mockup
-  }
   
 
   let nivel = 'Não Avaliado';
@@ -232,20 +173,12 @@ export function addEvidenceToCache(ev) {
   if(globalEvidencesCache) globalEvidencesCache.unshift(ev);
 }
 
-export function getEvidences() {
-  if (globalEvidencesCache && globalEvidencesCache.length > 0) {
+export const getEvidences = () => {
+  if (globalEvidencesCache !== null) {
     return globalEvidencesCache;
   }
-  const saved = localStorage.getItem('b4_evidences_local');
-  let evs = [];
-  if (saved && saved !== "undefined") {
-    try {
-      const parsed = JSON.parse(saved);
-      if (parsed.length > 0) evs = parsed;
-    } catch(e) {}
-  }
-  if (evs.length === 0) evs = defaultEvidences || [];
-  return evs;
+  // Removemos a leitura do localStorage para forçar os dados puros.
+  return defaultEvidences || [];
 };
 
 
@@ -373,18 +306,10 @@ export const defaultPilarObligations = {
 };
 
 export const getObligations = (projetoId, pilarNum) => {
-  const saved = localStorage.getItem('b4_obligations_v2');
-  let allObs = {};
-  if (saved && saved !== "undefined") {
-    try { allObs = JSON.parse(saved); } catch(e) {}
+  let defaults = [];
+  if (defaultPilarObligations[pilarNum]) {
+    defaults = JSON.parse(JSON.stringify(defaultPilarObligations[pilarNum]));
   }
-  const key = `${projetoId}_${pilarNum}`;
-  
-  if (allObs[key] && allObs[key].length > 0 && !(Number(pilarNum) === 7 && projetoId === '0xc88d4860d4ddb7a7621b4a919360b4775d93a5ef') && !(Number(pilarNum) === 7 && projetoId === '0x7466eb42b5b165d8b133a7040870b2da6c060546')) {
-    return allObs[key];
-  }
-  
-  let defaults = defaultPilarObligations[pilarNum] || [];
   
   // Customização para Pilar 7 de BF Terra (que tem 2 NFTs)
   if (Number(pilarNum) === 7 && projetoId === "0xc88d4860d4ddb7a7621b4a919360b4775d93a5ef") {
@@ -399,7 +324,7 @@ export const getObligations = (projetoId, pilarNum) => {
   }
   
   // Customização para Pilar 7 do Yaku (PSA com 4 NFTs)
-  if (Number(pilarNum) === 7 && projetoId === "0x7466eb42b5b165d8b133a7040870b2da6c060546") {
+  else if (Number(pilarNum) === 7 && projetoId === "0x7466eb42b5b165d8b133a7040870b2da6c060546") {
     defaults = [
       { id: 'def_yaku1', nome: 'Certificado de PSA R$100', desc: 'Registro do certificado de PSA na Blockchain' },
       { id: 'def_yaku2', nome: 'Certificado de PSA R$500', desc: 'Registro do certificado de PSA na Blockchain' },
@@ -409,6 +334,26 @@ export const getObligations = (projetoId, pilarNum) => {
       { id: 'def_yaku6', nome: 'Consulta Pública', desc: 'Acesso facilitado na Ferramenta Consulta Pública da B4.' },
       { id: 'def_yaku7', nome: 'Auditoria Smartcontract', desc: 'Verificação do controle de compensação e buffer pool.' }
     ];
+  }
+  
+  // Customização para os outros tokens no Pilar 7
+  else if (Number(pilarNum) === 7) {
+    if (projetoId === '0x90192d63e476b7ce061c0dbbad10fde95c5e1514') {
+      defaults = defaults.filter(o => o.id !== 'def_bft3' && o.id !== 'def5');
+      defaults.unshift({ id: 'def_apnkaa', nome: 'Ativo Sustentável — Utility Token APNKAA', desc: 'Ativo listado.' });
+    } else if (projetoId === '0xc8b8b674a6bab9cb09b4a660b8993035c1d923b9') {
+      defaults = defaults.filter(o => o.id !== 'def_bft3' && o.id !== 'def5');
+      defaults.unshift({ id: 'def_arciba', nome: 'Ativo Sustentável — Utility Token ARCIBA', desc: 'Ativo listado.' });
+    } else if (projetoId === '0xa1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0') {
+      defaults = defaults.filter(o => o.id !== 'def_bft3' && o.id !== 'def5');
+      defaults.unshift({ id: 'def_owie', nome: 'Ativo Sustentável — Utility Token OWBN', desc: 'Ativo listado.' });
+    } else if (projetoId === '0x56cb7b3b1b4a57e8d5e3bf3b72e9f1d29c7a1234') {
+      defaults = defaults.filter(o => o.id !== 'def_bft3' && o.id !== 'def5');
+      defaults.unshift({ id: 'def_dwm', nome: 'Ativo Sustentável — Utility Token DWM', desc: 'Ativo listado.' });
+    } else if (projetoId === '0xd69f495fd95d429954a63196d499dcfe4f3c87f5') {
+      defaults = defaults.filter(o => o.id !== 'def_bft3' && o.id !== 'def5');
+      defaults.unshift({ id: 'def_tonca', nome: 'Ativo Sustentável — Utility Token TONCA', desc: 'Ativo listado.' });
+    }
   }
   
   return defaults;
