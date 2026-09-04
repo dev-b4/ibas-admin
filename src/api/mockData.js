@@ -63,12 +63,38 @@ export const fetchIbasData = async () => {
       return 0; // Not part of the index
     };
 
-    const ibasIndex = dbProjects.reduce((acc, p) => acc + (generateAcreditationScore(0, p.id).total * getDynamicWeight(p.status) / 1.67), 0);
+    // --- BÔNUS DE COMPENSAÇÃO (AÇÃO CLIMÁTICA AO VIVO) ---
+    const compensations = {};
+    await Promise.all(dbProjects.map(async (p) => {
+      try {
+        if (!p.id.startsWith('0x')) return; // Só busca se for um address válido
+        const url = `https://polygon-mainnet.g.alchemy.com/v2/demo/getNFTsForCollection?contractAddress=${p.id}&withMetadata=true`;
+        const res = await fetch(url);
+        const data = await res.json();
+        let total = 0;
+        for (const nft of (data.nfts || [])) {
+          const attrs = (nft.metadata && nft.metadata.attributes) ? nft.metadata.attributes : [];
+          const compAttr = attrs.find(a => a.trait_type === 'Compensação' || a.trait_type === 'Compensado');
+          if (compAttr) total += parseFloat(compAttr.value) || 0;
+        }
+        compensations[p.id] = total;
+      } catch (e) {
+        compensations[p.id] = 0;
+      }
+    }));
+
+    const ibasIndex = dbProjects.reduce((acc, p) => {
+      const baseImpact = (generateAcreditationScore(0, p.id).total * getDynamicWeight(p.status)) / 1.67;
+      const bonus = (compensations[p.id] || 0) / 1000;
+      return acc + baseImpact + bonus;
+    }, 0);
+    
     const ymdDate = new Date().toISOString().split('T')[0];
     supabase.from('ibas_history').upsert({ date: ymdDate, value: ibasIndex }, { onConflict: 'date' }).then(() => {}).catch(e => console.error(e));
 
     const validAssets = dbProjects.map(p => {
       const ac = generateAcreditationScore(0, p.id);
+      const projCompensado = compensations[p.id] || 0;
       
       return {
         id: p.id,
@@ -77,7 +103,8 @@ export const fetchIbasData = async () => {
         preco: 1, // Will be ignored mostly, index is based on score
         peso: getDynamicWeight(p.status),
         score: ac.total, // Use dynamic score
-        get impacto() { return (this.score * this.peso) / 1.67; },
+        compensado: projCompensado, // Bônus rastreável
+        get impacto() { return ((this.score * this.peso) / 1.67) + (this.compensado / 1000); },
         variacao: 0,
         volume: p.volume,
         status: p.status,
