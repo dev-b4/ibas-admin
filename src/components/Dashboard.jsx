@@ -53,18 +53,22 @@ export default function Dashboard() {
 
   useEffect(() => {
     const loadData = async () => {
-      const result = await fetchIbasData();
-      setData(result);
-      if (result.ativos && result.ativos.length > 0) {
-        setSelectedAsset(result.ativos[0]);
+      try {
+        const result = await fetchIbasData();
+        setData(result);
+        if (result.ativos && result.ativos.length > 0) {
+          setSelectedAsset(result.ativos[0]);
+        }
+        
+        const hist = await getIbasHistory();
+        if (hist && hist.length > 0) {
+          setHistoryList(hist);
+        }
+      } catch (err) {
+        console.error("Error loading Dashboard data:", err);
+      } finally {
+        setLoading(false);
       }
-      
-      const hist = await getIbasHistory();
-      if (hist && hist.length > 0) {
-        setHistoryList(hist);
-      }
-      
-      setLoading(false);
     };
     loadData();
   }, []);

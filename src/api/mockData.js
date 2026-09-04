@@ -69,7 +69,13 @@ export const fetchIbasData = async () => {
       try {
         if (!p.id.startsWith('0x')) return; // Só busca se for um address válido
         const url = `https://polygon-mainnet.g.alchemy.com/v2/demo/getNFTsForCollection?contractAddress=${p.id}&withMetadata=true`;
-        const res = await fetch(url);
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
+        
+        const res = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        
         const data = await res.json();
         let total = 0;
         for (const nft of (data.nfts || [])) {
@@ -79,6 +85,7 @@ export const fetchIbasData = async () => {
         }
         compensations[p.id] = total;
       } catch (e) {
+        console.error("Alchemy API timeout or error for", p.id, e);
         compensations[p.id] = 0;
       }
     }));
