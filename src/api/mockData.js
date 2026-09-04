@@ -8,12 +8,20 @@ let globalEvidencesCache = null;
 export const fetchIbasData = async () => {
   let realPtax = 5.1625;
   try {
-    const today = new Date();
-    const formattedDate = `${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}-${today.getFullYear()}`;
-    const ptaxResponse = await fetch(`https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/CotacaoDolarDia(dataCotacao=@dataCotacao)?@dataCotacao='${formattedDate}'&$top=1&$format=json`);
-    const ptaxData = await ptaxResponse.json();
-    if (ptaxData && ptaxData.value && ptaxData.value.length > 0) {
-      realPtax = ptaxData.value[ptaxData.value.length - 1].cotacaoVenda;
+    // O BCB publica a cotação com algumas horas de atraso.
+    // Tentamos hoje primeiro; se não tiver, voltamos até 5 dias úteis.
+    for (let daysBack = 0; daysBack <= 5; daysBack++) {
+      const d = new Date();
+      d.setDate(d.getDate() - daysBack);
+      // Pula finais de semana
+      if (d.getDay() === 0 || d.getDay() === 6) continue;
+      const fmt = `${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}-${d.getFullYear()}`;
+      const res = await fetch(`https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/CotacaoDolarDia(dataCotacao=@dataCotacao)?@dataCotacao='${fmt}'&$top=1&$format=json`);
+      const json = await res.json();
+      if (json && json.value && json.value.length > 0) {
+        realPtax = json.value[json.value.length - 1].cotacaoVenda;
+        break; // Encontrou — para de procurar
+      }
     }
   } catch (error) {}
 
