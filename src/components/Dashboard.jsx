@@ -527,7 +527,7 @@ export default function Dashboard() {
                               </div>
                             </div>
                           </td>
-                          <td className="py-2.5 px-4 font-bold text-emerald-500 text-xs">{(ativo.impacto || 0).toFixed(2).replace('.', ',')} pts</td>
+                          <td className="py-2.5 px-4 font-bold text-emerald-500 text-xs whitespace-nowrap">{(ativo.impacto || 0).toFixed(2).replace('.', ',')} pts</td>
                           <td className="py-2.5 px-4">
                             <span className={`text-xs font-semibold flex items-center ${(ativo.variacao || 0) >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
                               {(ativo.variacao || 0) >= 0 ? <ArrowUpRight size={12}/> : <ArrowDownRight size={12}/>}
