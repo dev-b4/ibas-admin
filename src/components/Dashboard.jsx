@@ -71,6 +71,28 @@ export default function Dashboard() {
       }
     };
     loadData();
+
+    // Atualiza o PTAX automaticamente a cada 30 minutos
+    // O BCB publica a cotação do dia por volta das 13h — assim ela aparece sem precisar de F5
+    const ptaxInterval = setInterval(async () => {
+      try {
+        for (let daysBack = 0; daysBack <= 5; daysBack++) {
+          const d = new Date();
+          d.setDate(d.getDate() - daysBack);
+          if (d.getDay() === 0 || d.getDay() === 6) continue;
+          const fmt = `${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}-${d.getFullYear()}`;
+          const res = await fetch(`https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/CotacaoDolarDia(dataCotacao=@dataCotacao)?@dataCotacao='${fmt}'&$top=1&$format=json`);
+          const json = await res.json();
+          if (json && json.value && json.value.length > 0) {
+            const newPtax = json.value[json.value.length - 1].cotacaoVenda;
+            setData(prev => prev ? { ...prev, ptax: newPtax } : prev);
+            break;
+          }
+        }
+      } catch (e) {}
+    }, 30 * 60 * 1000); // 30 minutos
+
+    return () => clearInterval(ptaxInterval);
   }, []);
 
   // Lógica {t('dashboard.of')} Filtro e Ordenação
