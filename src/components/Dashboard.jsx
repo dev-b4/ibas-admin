@@ -527,7 +527,7 @@ export default function Dashboard() {
                               </div>
                             </div>
                           </td>
-                          <td className="py-2.5 px-4 font-bold text-emerald-500 text-xs">{(ativo.impacto || 0).toFixed(0).replace('.', ',')} pts</td>
+                          <td className="py-2.5 px-4 font-bold text-emerald-500 text-xs">{(ativo.impacto || 0).toFixed(2).replace('.', ',')} pts</td>
                           <td className="py-2.5 px-4">
                             <span className={`text-xs font-semibold flex items-center ${(ativo.variacao || 0) >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
                               {(ativo.variacao || 0) >= 0 ? <ArrowUpRight size={12}/> : <ArrowDownRight size={12}/>}
@@ -614,7 +614,7 @@ export default function Dashboard() {
                       </div>
                       <div className="bg-slate-50 border border-slate-100 rounded-2xl p-3 hover:border-emerald-200 transition-colors">
                         <p className="text-[10px] font-semibold text-slate-500 mb-0.5">{t('dashboard.impact')} (pts)</p>
-                        <p className="text-xl font-black text-emerald-500">{(selectedAsset.impacto || 0).toFixed(0).replace('.', ',')}</p>
+                        <p className="text-xl font-black text-emerald-500">{(selectedAsset.impacto || 0).toFixed(2).replace('.', ',')}</p>
                       </div>
                       <div className="bg-slate-50 border border-slate-100 rounded-2xl p-3 hover:border-emerald-200 transition-colors">
                         <p className="text-[10px] font-semibold text-slate-500 mb-0.5">{t('dashboard.variation')} ({language === 'pt' ? 'mês' : 'month'})</p>
