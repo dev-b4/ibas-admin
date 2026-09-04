@@ -495,7 +495,7 @@ export default function Dashboard() {
                           <td className="py-2.5 px-4">
                             <div className="flex items-center gap-2">
                               <ProjectIcon project={ativo} className={`w-7 h-7 rounded shrink-0 transition-colors ${hasProjectLogo(ativo.nome) ? 'bg-transparent' : (selectedAsset?.id === ativo.id ? 'bg-purple-600 text-white' : 'bg-slate-100 text-slate-500 group-hover:bg-purple-100 group-hover:text-purple-600')}`} />
-                              <span className={`font-bold text-xs break-words transition-colors ${selectedAsset?.id === ativo.id ? 'text-purple-900' : 'text-slate-800'}`} title={ativo.nome}>{language === "en" ? ativo.nome.replace("Projeto ", "Project ") : ativo.nome}</span>
+                              <span className={`font-bold text-xs whitespace-nowrap transition-colors ${selectedAsset?.id === ativo.id ? 'text-purple-900' : 'text-slate-800'}`} title={ativo.nome}>{language === "en" ? ativo.nome.replace("Projeto ", "Project ") : ativo.nome}</span>
                             </div>
                           </td>
                           <td className="py-2.5 px-4">
