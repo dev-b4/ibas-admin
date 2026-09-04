@@ -366,19 +366,19 @@ export const getObligations = (projetoId, pilarNum) => {
   // Customização para os outros tokens no Pilar 7
   else if (Number(pilarNum) === 7) {
     if (projetoId === '0x90192d63e476b7ce061c0dbbad10fde95c5e1514') {
-      defaults = defaults.filter(o => o.id !== 'def_bft3' && o.id !== 'def5');
+      defaults = defaults.filter(o => o.id !== 'p7_2');
       defaults.unshift({ id: 'def_apnkaa', nome: 'Ativo Sustentável — Utility Token APNKAA', desc: 'Ativo listado.' });
     } else if (projetoId === '0xc8b8b674a6bab9cb09b4a660b8993035c1d923b9') {
-      defaults = defaults.filter(o => o.id !== 'def_bft3' && o.id !== 'def5');
+      defaults = defaults.filter(o => o.id !== 'p7_2');
       defaults.unshift({ id: 'def_arciba', nome: 'Ativo Sustentável — Utility Token ARCIBA', desc: 'Ativo listado.' });
     } else if (projetoId === '0xa1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0') {
-      defaults = defaults.filter(o => o.id !== 'def_bft3' && o.id !== 'def5');
+      defaults = defaults.filter(o => o.id !== 'p7_2');
       defaults.unshift({ id: 'def_owie', nome: 'Ativo Sustentável — Utility Token OWBN', desc: 'Ativo listado.' });
     } else if (projetoId === '0x56cb7b3b1b4a57e8d5e3bf3b72e9f1d29c7a1234') {
-      defaults = defaults.filter(o => o.id !== 'def_bft3' && o.id !== 'def5');
+      defaults = defaults.filter(o => o.id !== 'p7_2');
       defaults.unshift({ id: 'def_dwm', nome: 'Ativo Sustentável — Utility Token DWM', desc: 'Ativo listado.' });
     } else if (projetoId === '0xd69f495fd95d429954a63196d499dcfe4f3c87f5') {
-      defaults = defaults.filter(o => o.id !== 'def_bft3' && o.id !== 'def5');
+      defaults = defaults.filter(o => o.id !== 'p7_2');
       defaults.unshift({ id: 'def_tonca', nome: 'Ativo Sustentável — Utility Token TONCA', desc: 'Ativo listado.' });
     }
   }
