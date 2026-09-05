@@ -115,6 +115,10 @@ export const Header = ({
           url: '/',
         },
         {
+          title: 'Score de Projetos B4',
+          url: '/',
+        },
+        {
           title: t('header.dropdowns.climateClock'),
           url: 'https://b4.capital/pt/relogio-de-acao-climatica/',
         },
