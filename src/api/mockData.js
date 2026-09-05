@@ -75,23 +75,35 @@ export const fetchIbasData = async () => {
     const compensations = {};
     await Promise.all(dbProjects.map(async (p) => {
       try {
-        if (!p.id.startsWith('0x')) return; // Só busca se for um address válido
-        const url = `https://polygon-mainnet.g.alchemy.com/v2/demo/getNFTsForCollection?contractAddress=${p.id}&withMetadata=true`;
-        
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3000);
-        
-        const res = await fetch(url, { signal: controller.signal });
-        clearTimeout(timeoutId);
-        
-        const data = await res.json();
-        let total = 0;
-        for (const nft of (data.nfts || [])) {
-          const attrs = (nft.metadata && nft.metadata.attributes) ? nft.metadata.attributes : [];
-          const compAttr = attrs.find(a => a.trait_type === 'Compensação' || a.trait_type === 'Compensado');
-          if (compAttr) total += parseFloat(compAttr.value) || 0;
+        let addressesToTry = [];
+        if (p.id.startsWith('0x') && !p.id.includes('a1b2c3d4')) {
+          addressesToTry.push(p.id);
         }
-        compensations[p.id] = total;
+        
+        // Sempre caçar nas evidências também, caso haja múltiplos contratos!
+        const evs = globalEvidencesCache.filter(e => e.projetoId === p.id);
+        const evStr = JSON.stringify(evs);
+        const matches = evStr.match(/0x[a-fA-F0-9]{40}/g) || [];
+        addressesToTry = [...new Set([...addressesToTry, ...matches])];
+
+        let totalProj = 0;
+        await Promise.all(addressesToTry.map(async (address) => {
+          try {
+            const url = `https://polygon-mainnet.g.alchemy.com/v2/demo/getNFTsForCollection?contractAddress=${address}&withMetadata=true`;
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3000);
+            const res = await fetch(url, { signal: controller.signal });
+            clearTimeout(timeoutId);
+            const data = await res.json();
+            for (const nft of (data.nfts || [])) {
+              const attrs = (nft.metadata && nft.metadata.attributes) ? nft.metadata.attributes : [];
+              const compAttr = attrs.find(a => a.trait_type === 'Compensação' || a.trait_type === 'Compensado');
+              if (compAttr) totalProj += parseFloat(compAttr.value) || 0;
+            }
+          } catch(e) {}
+        }));
+        
+        compensations[p.id] = totalProj;
       } catch (e) {
         console.error("Alchemy API timeout or error for", p.id, e);
         compensations[p.id] = 0;
