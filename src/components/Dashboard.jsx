@@ -284,7 +284,7 @@ export default function Dashboard() {
   return (
     <div className="w-full px-3 md:px-4 lg:px-6 xl:px-8 py-4 animate-fade-in-up min-h-screen lg:min-h-0 lg:h-[calc(100vh-73px)] lg:overflow-hidden flex flex-col">
       {/* Top Header Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-4 shrink-0">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 mb-4 shrink-0">
         
         {/* Main IBAS Card */}
         <div className="lg:col-span-2 bg-white rounded-3xl p-5 border border-slate-200 shadow-sm flex flex-col justify-between min-h-[180px]">
@@ -346,7 +346,7 @@ export default function Dashboard() {
         </div>
 
         {/* Chart Section */}
-        <div className="lg:col-span-1 bg-white rounded-3xl p-5 border border-slate-200 shadow-sm relative overflow-hidden flex flex-col justify-between min-h-[180px]">
+        <div className="lg:col-span-2 bg-white rounded-3xl p-5 border border-slate-200 shadow-sm relative overflow-hidden flex flex-col justify-between min-h-[180px]">
             <div className="flex justify-between text-[10px] font-semibold text-slate-400 z-10 mb-1">
               {['1D', '1S', '1M', '3M', '6M'].map(time => (
                 <span 
@@ -391,27 +391,23 @@ export default function Dashboard() {
 
         {/* Info Cards */}
         <div className="lg:col-span-1 flex flex-col gap-3 min-h-[180px]">
-          <div className="bg-white rounded-3xl p-4 border border-slate-200 shadow-sm flex-1 flex flex-col justify-center">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 shadow-sm border border-slate-100 flex items-center justify-center bg-slate-50">
-                <img src="./b4trii.png" alt="B4TRII" className="w-full h-full object-cover" />
-              </div>
-              <div>
-                <p className="text-[10px] font-bold text-slate-500 uppercase">{t("dashboard.price")}</p>
-                <p className="text-lg font-black text-[#150B2D] leading-none mt-1">R$ {data.ptax.toFixed(4).replace('.', ',')}</p>
-              </div>
+          <div className="bg-white rounded-3xl p-4 border border-slate-200 shadow-sm flex-1 flex flex-col justify-center items-center text-center">
+            <div className="w-8 h-8 rounded-full overflow-hidden shadow-sm border border-slate-100 flex items-center justify-center bg-slate-50 mb-2">
+              <img src="./b4trii.png" alt="B4TRII" className="w-full h-full object-cover" />
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-slate-500 uppercase">{t("dashboard.price")}</p>
+              <p className="text-sm xl:text-base font-black text-[#150B2D] leading-none mt-1">R$ {data.ptax.toFixed(4).replace('.', ',')}</p>
             </div>
           </div>
           
-          <div className="bg-white rounded-3xl p-4 border border-slate-200 shadow-sm flex-1 flex flex-col justify-center">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
-                <Globe size={16} />
-              </div>
-              <div>
-                <p className="text-[10px] font-bold text-slate-500 uppercase">{t("dashboard.normalization")}</p>
-                <p className="text-lg font-black text-[#150B2D] leading-none mt-1">{data.fatorNormalizacao.toFixed(2).replace('.', ',')}x</p>
-              </div>
+          <div className="bg-white rounded-3xl p-4 border border-slate-200 shadow-sm flex-1 flex flex-col justify-center items-center text-center">
+            <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mb-2">
+              <Globe size={16} />
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-slate-500 uppercase">{t("dashboard.normalization")}</p>
+              <p className="text-sm xl:text-base font-black text-[#150B2D] leading-none mt-1">{data.fatorNormalizacao.toFixed(2).replace('.', ',')}x</p>
             </div>
           </div>
         </div>
