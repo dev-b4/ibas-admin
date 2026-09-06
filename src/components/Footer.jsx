@@ -206,7 +206,7 @@ export function Footer() {
                     </a>
                   </li>
                   <li>
-                    <a href="https://b4.capital/pt/listagens-b4/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
+                    <a href="https://indices.b4.capital/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
                       {t('footer.index')}
                     </a>
                   </li>
