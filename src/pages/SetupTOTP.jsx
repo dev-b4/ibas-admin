@@ -18,6 +18,14 @@ export default function SetupTOTP() {
     const enrollMFA = async () => {
       try {
         const { data: factors } = await supabase.auth.mfa.listFactors();
+        
+        // Verifica se o usuário JÁ TEM um Authy configurado e verificado
+        const alreadyVerified = factors?.all?.find(f => f.factor_type === 'totp' && f.status === 'verified');
+        if (alreadyVerified) {
+          navigate('/verify-totp');
+          return;
+        }
+
         const unverified = factors?.all?.filter(f => f.factor_type === 'totp' && f.status === 'unverified') || [];
         for (const f of unverified) {
           await supabase.auth.mfa.unenroll({ factorId: f.id });
