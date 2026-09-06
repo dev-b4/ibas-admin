@@ -433,11 +433,7 @@ export default function AdminPanel() {
 
             <div className="space-y-3">
               {(() => {
-                let userPillars = [1,2,3,4,5,6,7,8,9,10,11];
-                try {
-                  const stored = localStorage.getItem('b4_allowed_pillars');
-                  if (stored && stored !== 'undefined') userPillars = JSON.parse(stored) || userPillars;
-                } catch(e) {}
+                let userPillars = currentUser?.allowedPillars || [1,2,3,4,5,6,7,8,9,10,11];
                 return pilaresList.filter(p => userPillars.includes(p.num)).map((p) => {
                   const max = p.max || 100;
                   const score = calculatePilarScore(projetoSelecionado.id, p.num, p.max);
