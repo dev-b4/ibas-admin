@@ -37,6 +37,15 @@ function AdminAuthWrapper({ children }) {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // --- TRACK ACTIVITY FOR TIMEOUT ---
+    const updateActivity = () => {
+      if (authenticated) {
+        localStorage.setItem('b4_admin_last_activity', Date.now().toString());
+      }
+    };
+    window.addEventListener('click', updateActivity);
+    window.addEventListener('keydown', updateActivity);
+
     const checkAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
@@ -51,17 +60,24 @@ function AdminAuthWrapper({ children }) {
           return;
         }
 
-        // --- SESSION TIMEOUT CHECK ---
-        const lastSignIn = new Date(user.last_sign_in_at || session.user.created_at);
-        const now = new Date();
-        const hoursSinceLogin = (now - lastSignIn) / (1000 * 60 * 60);
+        // --- INACTIVITY TIMEOUT CHECK (30 MIN) ---
+        const lastActivityStr = localStorage.getItem('b4_admin_last_activity');
+        const now = Date.now();
         
-        // Desloga automaticamente após 12 horas
-        if (hoursSinceLogin > 12) {
-          await supabase.auth.signOut();
-          navigate('/login');
-          return;
+        if (lastActivityStr) {
+          const lastActivity = parseInt(lastActivityStr);
+          const minutesSinceActivity = (now - lastActivity) / (1000 * 60);
+          
+          if (minutesSinceActivity > 30) {
+            await supabase.auth.signOut();
+            localStorage.removeItem('b4_admin_last_activity');
+            navigate('/login');
+            return;
+          }
         }
+        
+        // Initialize activity if first time
+        localStorage.setItem('b4_admin_last_activity', now.toString());
 
         // Check MFA status
         const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors();
@@ -88,7 +104,12 @@ function AdminAuthWrapper({ children }) {
     };
 
     checkAuth();
-  }, [navigate]);
+
+    return () => {
+      window.removeEventListener('click', updateActivity);
+      window.removeEventListener('keydown', updateActivity);
+    };
+  }, [navigate, authenticated]);
 
   if (loading) {
     return <div className="min-h-screen bg-slate-50 flex items-center justify-center p-8 text-slate-500 font-bold">Verificando segurança...</div>;
