@@ -24,10 +24,12 @@ export default function AdminPanel() {
   const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'Super Admin';
   const [projetos, setProjetos] = useState([]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     sessionStorage.removeItem('b4_admin_auth');
     sessionStorage.removeItem('b4_user');
-    window.location.reload();
+    localStorage.removeItem('b4_admin_last_activity');
+    await supabase.auth.signOut();
+    window.location.href = '/#/login';
   };
   const [projetoSelecionado, setProjetoSelecionado] = useState(null);
   const [activeView, setActiveView] = useState('projetos');
