@@ -392,22 +392,12 @@ export default function Dashboard() {
         {/* Info Cards */}
         <div className="lg:col-span-1 flex flex-col gap-3 min-h-[180px]">
           <div className="bg-white rounded-3xl p-4 border border-slate-200 shadow-sm flex-1 flex flex-col justify-center items-center text-center">
-            <div className="w-8 h-8 rounded-full overflow-hidden shadow-sm border border-slate-100 flex items-center justify-center bg-slate-50 mb-2">
+            <div className="w-12 h-12 rounded-full overflow-hidden shadow-sm border border-slate-100 flex items-center justify-center bg-slate-50 mb-3">
               <img src="./b4trii.png" alt="B4TRII" className="w-full h-full object-cover" />
             </div>
             <div>
-              <p className="text-[10px] font-bold text-slate-500 uppercase">{t("dashboard.price")}</p>
-              <p className="text-sm xl:text-base font-black text-[#150B2D] leading-none mt-1">R$ {data.ptax.toFixed(4).replace('.', ',')}</p>
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-3xl p-4 border border-slate-200 shadow-sm flex-1 flex flex-col justify-center items-center text-center">
-            <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mb-2">
-              <Globe size={16} />
-            </div>
-            <div>
-              <p className="text-[10px] font-bold text-slate-500 uppercase">{t("dashboard.normalization")}</p>
-              <p className="text-sm xl:text-base font-black text-[#150B2D] leading-none mt-1">{data.fatorNormalizacao.toFixed(2).replace('.', ',')}x</p>
+              <p className="text-xs font-bold text-slate-500 uppercase">{t("dashboard.price")}</p>
+              <p className="text-lg xl:text-xl font-black text-[#150B2D] leading-none mt-1">R$ {data.ptax.toFixed(4).replace('.', ',')}</p>
             </div>
           </div>
         </div>
