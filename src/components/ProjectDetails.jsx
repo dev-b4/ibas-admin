@@ -98,7 +98,7 @@ export default function ProjectDetails() {
     setIsModalOpen(true);
   };
 
-  if (!projeto) return <div className="p-8 text-center text-slate-500">Carregando detalhes do projeto...</div>;
+  if (!projeto) return <div className="min-h-screen bg-slate-50"></div>;
 
   const pilaresList = [
     { num: 1, icon: <Leaf className="text-emerald-500" />, title: 'Impacto Socioambiental' },

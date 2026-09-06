@@ -277,7 +277,9 @@ export default function Dashboard() {
     return ['Todos os Tipos', ...Array.from(cats)];
   }, [data]);
 
-  // Removed plain loading frame, letting the skeleton/zero-state render beautifully
+  if (loading || !selectedAsset) {
+    return <div className="min-h-screen bg-slate-50"></div>;
+  }
 
   return (
     <div className="w-full px-3 md:px-4 lg:px-6 xl:px-8 py-4 animate-fade-in-up min-h-screen lg:min-h-0 lg:h-[calc(100vh-73px)] lg:overflow-hidden flex flex-col">
