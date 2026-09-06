@@ -192,7 +192,7 @@ function Preloader({ onComplete }) {
         className="flex flex-col items-center justify-center"
       >
         <img src="./ibas-logo.png" alt="IBAS Logo" className="w-32 md:w-48 object-contain" />
-        <p className="text-[10px] text-slate-400 font-bold tracking-widest mt-3 uppercase">Powered by B4</p>
+        <p className="text-[10px] text-slate-400 font-bold tracking-widest mt-0 uppercase">Powered by B4</p>
       </motion.div>
       <motion.div 
         initial={{ width: 0 }}
