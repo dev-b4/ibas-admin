@@ -51,6 +51,18 @@ function AdminAuthWrapper({ children }) {
           return;
         }
 
+        // --- SESSION TIMEOUT CHECK ---
+        const lastSignIn = new Date(user.last_sign_in_at || session.user.created_at);
+        const now = new Date();
+        const hoursSinceLogin = (now - lastSignIn) / (1000 * 60 * 60);
+        
+        // Desloga automaticamente após 12 horas
+        if (hoursSinceLogin > 12) {
+          await supabase.auth.signOut();
+          navigate('/login');
+          return;
+        }
+
         // Check MFA status
         const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors();
         const totpFactor = factors?.all?.find(f => f.factor_type === 'totp' && f.status === 'verified');
@@ -119,8 +131,7 @@ function AnimatedRoutes() {
             <Route path="/" element={<motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-20}} transition={{duration:0.3}}><PublicLayout><Dashboard /></PublicLayout></motion.div>} />
             <Route path="/projeto/:id" element={<motion.div initial={{opacity:0, x:50}} animate={{opacity:1, x:0}} exit={{opacity:0, x:-50}} transition={{duration:0.3}}><PublicLayout><ProjectDetails /></PublicLayout></motion.div>} />
             <Route path="/register" element={<Register />} />
-            <Route path="/admin" element={<motion.div initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} exit={{opacity:0, scale:1.05}} transition={{duration:0.3}}><AdminAuthWrapper><AdminPanel /></AdminAuthWrapper></motion.div>} />
-            <Route path="/login" element={<Login />} />
+            {/* Admin and Login paths removed from public layout to prevent access and SEO indexing */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </>
         )}
@@ -165,6 +176,15 @@ function Preloader({ onComplete }) {
 
 function App() {
   const [loadingApp, setLoadingApp] = useState(true);
+
+  useEffect(() => {
+    if (import.meta.env.VITE_APP_MODE === 'admin' || window.location.hostname.includes('admin')) {
+      let meta = document.createElement('meta');
+      meta.name = "robots";
+      meta.content = "noindex, nofollow";
+      document.getElementsByTagName('head')[0].appendChild(meta);
+    }
+  }, []);
 
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
