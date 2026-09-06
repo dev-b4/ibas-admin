@@ -79,6 +79,14 @@ function AdminAuthWrapper({ children }) {
         // Initialize activity if first time
         localStorage.setItem('b4_admin_last_activity', now.toString());
 
+        // --- SET CURRENT USER PROFILE ---
+        const allUsers = getSystemUsers();
+        let dbUser = allUsers.find(u => u.email.toLowerCase() === user.email.toLowerCase());
+        if (!dbUser) {
+          dbUser = { email: user.email, role: 'Super Admin', name: 'Admin Master', projects: [], allowedPillars: [1,2,3,4,5,6,7,8,9,10,11] };
+        }
+        sessionStorage.setItem('b4_user', JSON.stringify(dbUser));
+
         // Check MFA status
         const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors();
         const totpFactor = factors?.all?.find(f => f.factor_type === 'totp' && f.status === 'verified');
@@ -181,9 +189,10 @@ function Preloader({ onComplete }) {
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className="flex items-center justify-center"
+        className="flex flex-col items-center justify-center"
       >
         <img src="./ibas-logo.png" alt="IBAS Logo" className="w-32 md:w-48 object-contain" />
+        <p className="text-[10px] text-slate-400 font-bold tracking-widest mt-3 uppercase">Powered by B4</p>
       </motion.div>
       <motion.div 
         initial={{ width: 0 }}
